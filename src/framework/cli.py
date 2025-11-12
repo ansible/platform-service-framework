@@ -34,7 +34,7 @@ class Context(BaseModel):
 @app.command
 def init(
     destination: Path | None = None,
-    project: str = "project",
+    project: Annotated[str | None, Parameter(alias="-p")] = None,
     apps: Annotated[list[str], Parameter(consume_multiple=True)] = ["api"],
 ):
     """Initialize a new application.
@@ -43,13 +43,15 @@ def init(
     2. Create new apps from app_template
     """
     destination = destination or Path.cwd()
+    project = project or destination.name.replace("-", "_")
+
     # Destination must be a valid git repo
     if not destination.exists():
         destination.mkdir(parents=True, exist_ok=True)
+    if not Path(destination / ".git"):
         Repo.init(str(destination))
 
     ctx = Context.build()
-    print(ctx)
     print(f"Initializing your project on {destination}")
     run_copy(
         ctx.project_template,
