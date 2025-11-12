@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Annotated
 
 from copier import run_copy, run_update
-from cyclopts import App
+from cyclopts import App, Parameter
 from git import Repo
 from pydantic import BaseModel
 
@@ -16,27 +17,25 @@ REPO = os.getenv("FRAMEWORK_REPO", "https://github.com/rochacbruno/framework")
 
 
 class Context(BaseModel):
-    project_template: str
+    project_template: str = REPO
     app_template: str | Path
 
     @classmethod
     def build(cls):
         # This local clone is used only once to bootstrap each app
-        temp_dir = TemporaryDirectory()
+        temp_dir = TemporaryDirectory(delete=False)
         base_cache_path = Path(temp_dir.name)
         Repo.clone_from(REPO, base_cache_path)
         print(f"Cloned {REPO} to {base_cache_path}")
         app_template = base_cache_path / "templates/app"
-
-        # Main project is always templated directly from repo
-        return cls(project_template=REPO, app_template=app_template)
+        return cls(app_template=app_template)
 
 
 @app.command
 def init(
     destination: Path | None = None,
     project: str = "project",
-    apps: list[str] = ["app"],
+    apps: Annotated[list[str], Parameter(consume_multiple=True)] = ["api"],
 ):
     """Initialize a new application.
 
@@ -50,13 +49,21 @@ def init(
         Repo.init(str(destination))
 
     ctx = Context.build()
+    print(ctx)
     print(f"Initializing your project on {destination}")
-    run_copy(ctx.project_template, destination, data={"project": project})
+    run_copy(
+        ctx.project_template,
+        destination,
+        data={
+            "project_name": project,
+            "template": "templates/project",
+        },
+    )
     print("Main project created.")
 
-    # for app_name in apps:
-    #     run_copy(str(ctx.app_template), destination / app_name)
-    #     print(f"Created app {app_name}")
+    for app_name in apps:
+        run_copy(str(ctx.app_template), destination / app_name)
+        print(f"Created app {app_name}")
 
 
 @app.command
@@ -64,7 +71,11 @@ def update(destination: Path | None = None):
     """Update an existing application"""
     destination = destination or Path.cwd()
     print(f"Updating your app on {destination}")
-    run_update(destination)
+    run_update(
+        destination,
+        overwrite=True,
+        skip_answered=True,
+    )
 
 
 @app.command
