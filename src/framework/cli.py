@@ -17,17 +17,26 @@ class Context(BaseModel):
 
     @classmethod
     def build(cls):
-        if Path("templates").exists():
+        app_template = None
+        project_template = None
+
+        if Path("copier.yaml").exists():
+            project_template = Path.cwd()
+        if Path("templates/app").exists():
+            app_template = Path("templates/app")
+
+        if app_template and project_template:
             return cls(
                 project_template=Path("templates/project"),
                 app_template=Path("templates/app"),
             )
+
         base_cache_path = Path("/tmp/framework_cache")
         if not base_cache_path.exists():
             Repo.clone_from(
                 "https://github.com/rochacbruno/framework.git", base_cache_path
             )
-        project_template = base_cache_path / "templates/project"
+        project_template = base_cache_path
         app_template = base_cache_path / "templates/app"
         return cls(project_template=project_template, app_template=app_template)
 
@@ -40,6 +49,11 @@ def init(destination: Path | None = None, apps: list[str] = ["app"]):
     2. Create new apps from app_template
     """
     destination = destination or Path.cwd()
+    # Destination must be a valid git repo
+    if not destination.exists():
+        destination.mkdir(parents=True, exist_ok=True)
+        Repo.init(str(destination))
+
     ctx = Context.build()
     print(f"Initializing your project on {destination}")
     run_copy(str(ctx.project_template), destination)
