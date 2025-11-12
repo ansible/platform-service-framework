@@ -1,6 +1,6 @@
-# Framework
+# Platform Service Framework
 
-Framework initializes Django projects based on templates and keep project updated
+Platform Service Framework initializes Django projects based on templates and keep project updated
 to follow the defined standards.
 
 ## Features
@@ -23,7 +23,7 @@ to follow the defined standards.
 ### Start a new project named `my-project` with a single app named `api`
 
 ```console
-$ uvx git+https://github.com/rochacbruno/framework init my-project
+$ uvx git+https://github.com/rochacbruno/platform-service-framework init my-project
 ...
 …………………………………………………………………………………………………………
 Framework init finished
@@ -56,3 +56,85 @@ my-project
 ```
 
 > Developers now can edit any file inside `apps` folder, this is the only folder unmanaged by subsequent framework updates, framework will consolidate the content of `apps/metadata` into the respective root folder file.
+
+## What is included?
+
+- UV based project
+- Django > 5
+- Django Ansible Base (dynamic)
+- pytest 
+- ruff
+- ty 
+- pdoc
+- poethepoet
+
+## How to manage the local project?
+
+
+### Dependencies 
+
+**UV** replaces PIP
+
+```
+uv sync
+uv pip list
+```
+
+
+### Repo Tasks 
+
+**Poe** replaces the makefile.
+
+```console 
+# list included tasks
+$ uv run poe
+```
+```
+Configured tasks:
+  lint                  
+  type_check            
+  format                
+  test                  
+  check                 
+  render-docs           
+  serve-docs            
+  clean
+```
+
+### Unit tests 
+
+**UV** + **Poe** replaces tox.
+
+```
+uv run --isolated --python 3.12 pytest tests
+```
+
+### Docs 
+
+**Pdoc** replaces sphinx 
+
+It is **really** simple, and develper focused, THIS IS NOT SUPPOSED TO BE CUSTOMER DOCS.
+
+Pdoc generates docs from README files and 
+python docstrings, doc is maintained together 
+with the code.
+
+```
+uv run poe serve-docs
+```
+
+### Format 
+
+**Ruff** replaces linters and black.
+
+```
+uv run poe format 
+```
+
+### Type Checking
+
+**Ty** Replaces Mypy 
+
+```
+uv run poe type_check
+```

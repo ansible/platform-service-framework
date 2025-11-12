@@ -99,41 +99,6 @@ wheels = [
 ]
 
 [[package]]
-name = "framework"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "copier" },
-    { name = "cyclopts" },
-    { name = "gitpython" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pdoc" },
-    { name = "poethepoet" },
-    { name = "pytest" },
-    { name = "ruff" },
-    { name = "ty" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "copier", specifier = ">=9.10.3" },
-    { name = "cyclopts", specifier = ">=4.2.2" },
-    { name = "gitpython", specifier = ">=3.1.45" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pdoc", specifier = ">=16.0.0" },
-    { name = "poethepoet", specifier = ">=0.37.0" },
-    { name = "pytest", specifier = ">=9.0.0" },
-    { name = "ruff", specifier = ">=0.14.4" },
-    { name = "ty", specifier = ">=0.0.1a26" },
-]
-
-[[package]]
 name = "funcy"
 version = "2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -333,6 +298,41 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ac/fe/ab3f34a5fb08c6b698439a2c2643caf8fef0d61a86dd3fdcd5501c670ab8/pdoc-16.0.0.tar.gz", hash = "sha256:fdadc40cc717ec53919e3cd720390d4e3bcd40405cb51c4918c119447f913514", size = 111890, upload-time = "2025-10-27T16:02:16.345Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/16/a1/56a17b7f9e18c2bb8df73f3833345d97083b344708b97bab148fdd7e0b82/pdoc-16.0.0-py3-none-any.whl", hash = "sha256:070b51de2743b9b1a4e0ab193a06c9e6c12cf4151cf9137656eebb16e8556628", size = 100014, upload-time = "2025-10-27T16:02:15.007Z" },
+]
+
+[[package]]
+name = "platform-service-framework"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "copier" },
+    { name = "cyclopts" },
+    { name = "gitpython" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pdoc" },
+    { name = "poethepoet" },
+    { name = "pytest" },
+    { name = "ruff" },
+    { name = "ty" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "copier", specifier = ">=9.10.3" },
+    { name = "cyclopts", specifier = ">=4.2.2" },
+    { name = "gitpython", specifier = ">=3.1.45" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pdoc", specifier = ">=16.0.0" },
+    { name = "poethepoet", specifier = ">=0.37.0" },
+    { name = "pytest", specifier = ">=9.0.0" },
+    { name = "ruff", specifier = ">=0.14.4" },
+    { name = "ty", specifier = ">=0.0.1a26" },
 ]
 
 [[package]]

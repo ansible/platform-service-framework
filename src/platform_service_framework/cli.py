@@ -7,11 +7,13 @@ from cyclopts import App, Parameter
 from git import Repo
 
 app = App(
-    name="Framework",
+    name="platform-service-framework",
     help="Framework for building Django applications",
 )
 
-REPO = os.getenv("FRAMEWORK_REPO", "https://github.com/rochacbruno/framework")
+REPO = os.getenv(
+    "FRAMEWORK_REPO", "https://github.com/rochacbruno/platform-service-framework"
+)
 
 
 @app.command
@@ -20,16 +22,16 @@ def init(
     project: Annotated[str | None, Parameter(alias="-p")] = None,
     apps: Annotated[list[str], Parameter(consume_multiple=True)] = ["api"],
 ):
-    """Initialize a new Django Project.
+    """# Initialize a new Django Project.
 
-    ## Usage
+    ## Examples
     ```bash
     # New project on current folder with one app named api:
-    framework init
+    platform-service-framework init
     # New project on specific folder with one app named api:
-    framework init /tmp/foo
+    platform-service-framework init /tmp/foo
     # New project on named folder with 3 apps:
-    framework init my-service --apps api web core
+    platform-service-framework init my-service --apps api web core
 
     ```
     ---
