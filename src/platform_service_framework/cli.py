@@ -12,7 +12,7 @@ app = App(
 )
 
 REPO = os.getenv(
-    "FRAMEWORK_REPO", "https://github.com/rochacbruno/platform-service-framework"
+    "FRAMEWORK_REPO", "https://github.com/ansible/platform-service-framework"
 )
 
 
