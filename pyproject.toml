@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Bruno Rocha", email = "rochacbruno@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "copier>=9.10.3",
     "cyclopts>=4.2.2",
@@ -25,6 +25,16 @@ dev = [
     "pdoc>=16.0.0",
     "poethepoet>=0.37.0",
     "pytest>=9.0.0",
+    "pytest-xdist>=3.6.1",
     "ruff>=0.14.4",
     "ty>=0.0.1a26",
 ]
+
+[tool.poe.tasks]
+test = "pytest tests/ -v"
+test-parallel = "pytest tests/ -v -n auto"
+format = "ruff format src/"
+format-check = "ruff format --check src/"
+lint = "ruff check src/"
+lint-fix = "ruff check --fix src/"
+check-all = ["format-check", "lint", "test"]
