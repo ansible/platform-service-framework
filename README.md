@@ -23,7 +23,7 @@ to follow the defined standards.
 ### Start a new project named `my-project` with a single app named `api`
 
 ```console
-$ uvx git+https://github.com/rochacbruno/platform-service-framework init my-project
+$ uvx git+https://github.com/ansible/platform-service-framework init my-project
 ...
 …………………………………………………………………………………………………………
 Framework init finished
