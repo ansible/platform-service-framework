@@ -11,9 +11,12 @@ app = App(
     help="Framework for building Django applications",
 )
 
-REPO = os.getenv(
-    "FRAMEWORK_REPO", "https://github.com/ansible/platform-service-framework"
-)
+
+def get_repo() -> str:
+    """Get the repository URL from environment or use default."""
+    return os.getenv(
+        "FRAMEWORK_REPO", "https://github.com/ansible/platform-service-framework"
+    )
 
 
 @app.command
@@ -49,7 +52,7 @@ def init(
 
     print(f"Initializing your project on {destination}")
     run_copy(
-        REPO,
+        get_repo(),
         destination,
         data={
             "project_name": project,
@@ -61,7 +64,7 @@ def init(
     apps_destination = destination / "apps"
     for app_name in apps:
         run_copy(
-            REPO,
+            get_repo(),
             apps_destination / app_name,
             data={
                 "template": "templates/app",
