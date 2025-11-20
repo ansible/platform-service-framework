@@ -4,3 +4,6 @@ template:
   choices:
     - templates/project
     - templates/app
+
+project_name:
+  type: str
