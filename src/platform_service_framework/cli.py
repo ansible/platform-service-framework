@@ -67,6 +67,7 @@ def init(
             get_repo(),
             apps_destination / app_name,
             data={
+                "project_name": project,
                 "template": "templates/app",
             },
         )
