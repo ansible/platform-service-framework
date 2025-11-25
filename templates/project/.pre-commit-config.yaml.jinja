@@ -1,0 +1,10 @@
+---
+repos:
+  - repo: local
+    hooks:
+      - id: framework-validation
+        name: Platform Service Framework Validation
+        entry: bash -c 'BRANCH=$(grep "^src_branch:" .copier-answers.yml | awk "{print \$2}") && SRC_PATH=$(grep "^_src_path:" .copier-answers.yml | awk "{print \$2}") && if [ -d "${SRC_PATH}" ]; then uvx --refresh --from "${SRC_PATH}" platform-service-framework validate; else uvx --refresh git+${SRC_PATH}@${BRANCH} validate; fi'
+        language: system
+        pass_filenames: false
+        always_run: true

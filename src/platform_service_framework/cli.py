@@ -63,6 +63,7 @@ def init(
         data={
             "project_name": project,
             "template": "templates/project",
+            "src_branch": vcs_ref,
         },
     )
     print("Main project created.")
@@ -76,6 +77,7 @@ def init(
             data={
                 "project_name": project,
                 "template": "templates/app",
+                "src_branch": vcs_ref,
             },
         )
         print(f"Created app {app_name}")
@@ -161,14 +163,22 @@ def update(
         answers = yaml.safe_load(f)
 
     old_src = answers.get("_src_path")
+    old_branch = answers.get("src_branch")
     print(f"Current template source: {old_src}")
+    print(f"Current template branch: {old_branch}")
     print(f"Detected framework source: {src_path}")
+    print(f"Detected framework branch: {vcs_ref}")
 
     # Update source in answers if changed
     source_changed = old_src != src_path
-    if source_changed:
-        print(f"Updating template source to: {src_path}")
-        answers["_src_path"] = src_path
+    branch_changed = old_branch != vcs_ref
+    if source_changed or branch_changed:
+        if source_changed:
+            print(f"Updating template source to: {src_path}")
+            answers["_src_path"] = src_path
+        if branch_changed:
+            print(f"Updating template branch to: {vcs_ref}")
+            answers["src_branch"] = vcs_ref
 
         # Write updated answers
         with open(answers_file, "w") as f:
@@ -185,7 +195,9 @@ def update(
             commit_msg = f"""[platform-service-framework] Update template source
 
 Old source: {old_src}
+Old branch: {old_branch}
 New source: {src_path}
+New branch: {vcs_ref}
 Template version: {vcs_ref or "HEAD"}
 
 This commit updates .copier-answers.yml to point to the new template source.
