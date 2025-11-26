@@ -7,3 +7,7 @@ template:
 
 project_name:
   type: str
+
+src_branch:
+  type: str
+  default: "main"

@@ -1,0 +1,23 @@
+---
+name: Framework Validation
+on:
+  pull_request:
+  push:
+    branches:
+      - devel
+      - main
+      - 'stable**'
+      - 'release**'
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Validate framework
+        run: |
+          BRANCH="${{ github.event.pull_request.base.ref || github.ref_name }}"
+          ORG="${{ github.event.pull_request.base.repo.owner.login || github.repository_owner }}"
+          uvx --refresh git+https://github.com/${ORG}/platform-service-framework@${BRANCH} validate
