@@ -57,3 +57,35 @@ serve-docs = "pdoc -t docs/templates --mermaid --docformat markdown --docformat 
 [tool.poe.tasks.clean]
 help = "Clean local caches for mypy, pytest, python"
 script = "poethepoet.scripts:rm('.mypy_cache', '.pytest_cache', './**/__pycache__', './**/*.pyc')"
+
+[tool.poe.tasks.validate]
+shell = """
+python -c "
+import yaml
+with open('.copier-answers.yml') as f:
+    d = yaml.safe_load(f)
+    branch = d.get('src_branch', '')
+    src = d.get('_src_path', '')
+    from pathlib import Path
+    if Path(src).is_dir():
+        print(f'uvx --refresh --from {src} platform-service-framework validate')
+    else:
+        print(f'uvx --refresh git+{src}@{branch} validate')
+" | sh
+"""
+
+[tool.poe.tasks.update]
+shell = """
+python -c "
+import yaml
+with open('.copier-answers.yml') as f:
+    d = yaml.safe_load(f)
+    branch = d.get('src_branch', '')
+    src = d.get('_src_path', '')
+    from pathlib import Path
+    if Path(src).is_dir():
+        print(f'uvx --refresh --from {src} platform-service-framework update')
+    else:
+        print(f'uvx --refresh git+{src}@{branch} update')
+" | sh
+"""
