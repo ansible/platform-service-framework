@@ -11,3 +11,11 @@ project_name:
 src_branch:
   type: str
   default: "main"
+
+app_name:
+  type: str
+  default: ""
+
+apps:
+  default:
+    - api

@@ -64,6 +64,8 @@ def init(
             "project_name": project,
             "template": "templates/project",
             "src_branch": vcs_ref,
+            "apps": apps,
+            "app_name": "",
         },
     )
     print("Main project created.")
@@ -76,8 +78,10 @@ def init(
             vcs_ref=vcs_ref,
             data={
                 "project_name": project,
+                "app_name": app_name,
                 "template": "templates/app",
                 "src_branch": vcs_ref,
+                "apps": apps,
             },
         )
         print(f"Created app {app_name}")
