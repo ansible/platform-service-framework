@@ -54,6 +54,11 @@ def init(
     if not Path(destination / ".git").exists():
         Repo.init(str(destination), initial_branch="devel")
 
+    # Filter out "core" from user-specified apps (core is always created)
+    apps = [app for app in apps if app != "core"]
+    # Create all_apps with core first for INSTALLED_APPS ordering
+    all_apps = ["core"] + apps
+
     print(f"Initializing your project on {destination}")
     src_path, vcs_ref = get_repo()
     run_copy(
@@ -64,13 +69,30 @@ def init(
             "project_name": project,
             "template": "templates/project",
             "src_branch": vcs_ref,
-            "apps": apps,
+            "apps": all_apps,
             "app_name": "",
         },
     )
     print("Main project created.")
 
     apps_destination = destination / "apps"
+
+    # Create core app first (always required)
+    run_copy(
+        src_path,
+        apps_destination / "core",
+        vcs_ref=vcs_ref,
+        data={
+            "project_name": project,
+            "app_name": "core",
+            "template": "templates/core",
+            "src_branch": vcs_ref,
+            "apps": all_apps,
+        },
+    )
+    print("Created core app")
+
+    # Create user-specified apps
     for app_name in apps:
         run_copy(
             src_path,
@@ -81,20 +103,18 @@ def init(
                 "app_name": app_name,
                 "template": "templates/app",
                 "src_branch": vcs_ref,
-                "apps": apps,
+                "apps": all_apps,
             },
         )
         print(f"Created app {app_name}")
 
-    if apps:
-        # Ensure apps is a Python module so each app can be imported
-        Path(apps_destination / "__init__.py").touch()
+    # Ensure apps is a Python module so each app can be imported
+    Path(apps_destination / "__init__.py").touch()
 
     print("…" * 40)
     print("Framework init finished")
     print(f"Created project at {destination}/{project}")
-    if apps:
-        print(f"Created apps at {destination}/apps/[{','.join(apps)}]")
+    print(f"Created apps at {destination}/apps/[{','.join(all_apps)}]")
 
     # Initial commit
     try:
@@ -107,7 +127,7 @@ def init(
             commit_msg = f"""[platform-service-framework] Initialize project
 
 Project: {project}
-Apps: {", ".join(apps) if apps else "none"}
+Apps: {", ".join(all_apps)}
 Template source: {src_path}
 Template version: {vcs_ref or "HEAD"}
 """

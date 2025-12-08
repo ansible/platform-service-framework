@@ -4,6 +4,7 @@ template:
   choices:
     - templates/project
     - templates/app
+    - templates/core
 
 project_name:
   type: str

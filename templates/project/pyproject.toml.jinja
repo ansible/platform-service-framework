@@ -13,6 +13,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.4.2",
+    "pytest-django>=4.10.0",
     "poethepoet>=0.37.0",
     "ruff>=0.14.3",
     "ty>=0.0.1a25",
@@ -50,6 +51,7 @@ select = ["E", "F", "W", "C90", "N", "I"]
 minversion = "6.0"
 addopts = "-vs -ra -q"
 testpaths = ["{{project_name}}/tests", "apps/**/tests"]
+DJANGO_SETTINGS_MODULE = "{{project_name}}.settings"
 
 [tool.poe]
 executor.type  = "uv"
