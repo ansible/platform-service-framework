@@ -8,3 +8,11 @@ These settings configure Django and DAB to use the core app's models.
 AUTH_USER_MODEL = "core.User"
 ANSIBLE_BASE_ORGANIZATION_MODEL = "core.Organization"
 ANSIBLE_BASE_TEAM_MODEL = "core.Team"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.core.authentication.ServiceJWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+    ],
+}
