@@ -9,10 +9,15 @@ AUTH_USER_MODEL = "core.User"
 ANSIBLE_BASE_ORGANIZATION_MODEL = "core.Organization"
 ANSIBLE_BASE_TEAM_MODEL = "core.Team"
 
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "apps.core.authentication.ServiceJWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.BasicAuthentication",
-    ],
+# Resource Registry Configuration
+ANSIBLE_BASE_RESOURCE_CONFIG_MODULE = "apps.core.resource_api"
+
+# RBAC Model Registry - register models for permission tracking
+ANSIBLE_BASE_RBAC_MODEL_REGISTRY = {
+    "core.Organization": {"parent_field_name": None},
+    "core.Team": {"parent_field_name": "organization"},
+    "core.User": {"parent_field_name": None},
 }
+
+# Authentication - insert JWT auth at position 0
+REST_FRAMEWORK__DEFAULT_AUTHENTICATION_CLASSES = "@insert 0 apps.core.authentication.ServiceJWTAuthentication"

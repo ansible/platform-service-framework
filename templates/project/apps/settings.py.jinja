@@ -41,8 +41,9 @@ INSTALLED_APPS = [
 ]
 """Final state of the INSTALLED_APPS that will merge with the rest of the settings."""
 
-# TODO (rochacbruno): Add the rest of DAB settings here:
-# resource registry registration
-# RBAC models
-# DRF and Auth classes
-# All pointing to the api app.
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+}
