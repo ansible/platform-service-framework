@@ -26,11 +26,12 @@ from django.conf.urls.static import static
 from django.urls import include, path
 
 urlpatterns = [
-    path("api/v1/", include(api_version_urls)),
-    path("api/v1/", include(resource_api_urls)),
-    path("api/v1/", include(rbac_service_urls)),
     path("api/", include(api_urls)),
+    # Root-level patterns last (so reverse() finds these first - Django uses last match)
     path("", include(root_urls)),
+    path("", include(api_version_urls)),  # role_definitions, etc.
+    path("", include(resource_api_urls)),
+    path("", include(rbac_service_urls)),
 ]
 
 # Extend URL patterns for each app
