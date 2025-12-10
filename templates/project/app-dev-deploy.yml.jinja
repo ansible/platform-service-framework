@@ -8,22 +8,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ project_name }}
+  name: {{ project_name | replace("_", "-") }}
   labels:
-    app: {{ project_name }}
+    app: {{ project_name | replace("_", "-") }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ project_name }}
+      app: {{ project_name | replace("_", "-") }}
   template:
     metadata:
       labels:
-        app: {{ project_name }}
+        app: {{ project_name | replace("_", "-") }}
     spec:
       containers:
-        - name: {{ project_name }}
-          image: localhost:5001/{{ project_name }}:latest
+        - name: {{ project_name | replace("_", "-") }}
+          image: localhost:5001/{{ project_name | replace("_", "-") }}:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
@@ -56,10 +56,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ project_name }}
+  name: {{ project_name | replace("_", "-") }}
 spec:
   selector:
-    app: {{ project_name }}
+    app: {{ project_name | replace("_", "-") }}
   ports:
     - protocol: TCP
       port: 80
