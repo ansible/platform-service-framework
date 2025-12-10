@@ -26,6 +26,7 @@ adjust `pyproject` dab extra dependencies acording to apps added/removed here.
 """
 
 project_applications = [
+    "apps.core",
 {%- for app in apps %}
     "apps.{{ app }}",
 {%- endfor %}
