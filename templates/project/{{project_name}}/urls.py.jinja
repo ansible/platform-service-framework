@@ -25,13 +25,22 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 
-urlpatterns = [
-    path("api/", include(api_urls)),
-    # Root-level patterns last (so reverse() finds these first - Django uses last match)
-    path("", include(root_urls)),
-    path("", include(api_version_urls)),  # role_definitions, etc.
-    path("", include(resource_api_urls)),
-    path("", include(rbac_service_urls)),
+from apps.core.views import APIRootView
+
+urlpatterns = []
+
+# Django Ansible Base URLs
+urlpatterns += [
+    path('v1/', include(api_version_urls)),
+    path('v1/', include(resource_api_urls)),
+    path('v1/', include(rbac_service_urls)),
+    path('', include(root_urls)),
+    path('', include(api_urls)),
+]
+
+# Override empty router views from DAB with dynamic API root
+urlpatterns += [
+    path('v1/', APIRootView.as_view(), name='v1-index'),
 ]
 
 # Extend URL patterns for each app
@@ -54,8 +63,3 @@ if not settings.DYNACONF.get("IS_RUNNING_TESTS") and settings.DYNACONF.get("DEBU
 
 # Static URL required to serve DRF Browsable API
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
-
-# TODO (rochacbruno): Add a, /api/ root view generated from the routers
-# see: https://github.com/ansible/django-ansible-base/blob/46d2c46aadb325d923627f5139025952fc969d9b/test_app/views.py#L142-L181
-# The view will be defined inside {{project_name}} and managed by framework.

@@ -1,5 +1,5 @@
+from .api_root import APIRootView
 from .health import HealthView
-from .index import IndexView
 from .ping import PingView
 
-__all__ = ["PingView", "HealthView", "IndexView"]
+__all__ = ["PingView", "HealthView", "APIRootView"]
