@@ -39,7 +39,7 @@ class APIRootView(APIView):
         return Response(dict(sorted(endpoints.items())))
 
     def _extract_patterns(
-        self, patterns, current_path, endpoints, request, prefix, exclude_name=None
+        self, patterns, current_path, endpoints, request, prefix, exclude_name=None, namespace=None
     ):
         """Recursively extract endpoints from URL patterns."""
         for pattern in patterns:
@@ -47,6 +47,10 @@ class APIRootView(APIView):
 
             # Handle nested includes (URLResolver)
             if hasattr(pattern, "url_patterns"):
+                # Track namespace for nested patterns
+                pattern_namespace = getattr(pattern, "namespace", None)
+                child_namespace = f"{namespace}:{pattern_namespace}" if namespace and pattern_namespace else (pattern_namespace or namespace)
+
                 # Check if this resolver is a direct child of our prefix
                 if full_path.startswith(prefix):
                     relative_path = full_path[len(prefix) :]
@@ -67,7 +71,7 @@ class APIRootView(APIView):
 
                 # Always recurse to find named patterns
                 self._extract_patterns(
-                    pattern.url_patterns, full_path, endpoints, request, prefix, exclude_name
+                    pattern.url_patterns, full_path, endpoints, request, prefix, exclude_name, child_namespace
                 )
 
             # Handle leaf patterns (URLPattern)
@@ -99,13 +103,17 @@ class APIRootView(APIView):
                     continue
 
                 # Skip index views (they're redundant with section links)
-                if pattern.name.endswith("-index"):
+                # This includes -index and api-root (DRF router index)
+                if pattern.name.endswith("-index") or pattern.name == "api-root":
                     continue
 
-                # Use a clean name for the endpoint
+                # Build full URL name with namespace if applicable
+                url_name = f"{namespace}:{pattern.name}" if namespace else pattern.name
+
+                # Use a clean name for the endpoint (strip namespace prefix and suffixes)
                 name = pattern.name.removesuffix("-list").removesuffix("-root")
                 try:
-                    endpoints[name] = reverse(pattern.name, request=request)
+                    endpoints[name] = reverse(url_name, request=request)
                 except Exception:
                     # Skip if reverse fails (e.g., requires arguments)
                     pass
