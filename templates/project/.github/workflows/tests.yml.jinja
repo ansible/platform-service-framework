@@ -1,0 +1,22 @@
+---
+name: Unit Tests
+on:
+  pull_request:
+  push:
+    branches:
+      - devel
+      - main
+      - 'stable**'
+      - 'release**'
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Make Migrations
+        run: uv run manage.py makemigrations
+      - name: Run Unit Tests
+        run: uv run poe unit-test
