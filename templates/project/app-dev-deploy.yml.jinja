@@ -1,0 +1,67 @@
+# =============================================================================
+# DEVELOPMENT ONLY - DO NOT USE IN PRODUCTION
+# =============================================================================
+# This manifest is for local development and testing only.
+# It uses DEBUG=true, emptyDir volumes, and is not suitable for production.
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ project_name }}
+  labels:
+    app: {{ project_name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ project_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ project_name }}
+    spec:
+      containers:
+        - name: {{ project_name }}
+          image: localhost:5001/{{ project_name }}:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          env:
+            - name: {{ project_name | upper | replace("-", "_") }}_ALLOWED_HOSTS
+              value: '["*"]'
+            - name: {{ project_name | upper | replace("-", "_") }}_DEBUG
+              value: "true"
+            - name: {{ project_name | upper | replace("-", "_") }}_DATABASES__default__NAME
+              value: "/app/data/db.sqlite3"
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /app/data
+          readinessProbe:
+            httpGet:
+              path: /ping/
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /ping/
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+      volumes:
+        - name: sqlite-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ project_name }}
+spec:
+  selector:
+    app: {{ project_name }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
