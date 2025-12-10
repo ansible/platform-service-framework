@@ -23,13 +23,13 @@ class APIRootViewMiddleware:
         response = self.get_response(request)
 
         # Only intercept 404s for paths ending with /
-        if response.status_code == 404 and request.path.endswith('/'):
+        if response.status_code == 404 and request.path.endswith("/"):
             if self._has_child_routes(request.path):
                 # Serve the endpoint index view
                 view = APIRootView.as_view()
                 index_response = view(request)
                 # Render the response if needed (DRF responses need rendering)
-                if hasattr(index_response, 'render'):
+                if hasattr(index_response, "render"):
                     index_response.render()
                 return index_response
 
@@ -37,10 +37,10 @@ class APIRootViewMiddleware:
 
     def _has_child_routes(self, path):
         """Check if there are any routes under the given path."""
-        prefix = path.lstrip('/')
+        prefix = path.lstrip("/")
         resolver = get_resolver()
 
-        def check_patterns(patterns, current_path=''):
+        def check_patterns(patterns, current_path=""):
             for pattern in patterns:
                 full_path = current_path + str(pattern.pattern)
 
@@ -50,7 +50,7 @@ class APIRootViewMiddleware:
                     return True
 
                 # Recurse into includes
-                if hasattr(pattern, 'url_patterns'):
+                if hasattr(pattern, "url_patterns"):
                     if check_patterns(pattern.url_patterns, full_path):
                         return True
 

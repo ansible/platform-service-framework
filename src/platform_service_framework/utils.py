@@ -42,9 +42,7 @@ def _read_direct_url_metadata() -> dict:
     except RuntimeError:
         raise
     except (json.JSONDecodeError, OSError) as e:
-        raise RuntimeError(
-            f"Cannot detect template source: Failed to read direct_url.json: {e}"
-        )
+        raise RuntimeError(f"Cannot detect template source: Failed to read direct_url.json: {e}")
 
 
 def _get_local_repo_ref(repo_path: Path) -> str:
@@ -109,7 +107,8 @@ def _parse_local_source(url: str) -> tuple[str, str]:
         raise RuntimeError(
             f"Local template source at {local_path} is not a git repository.\n"
             f"The framework requires templates to be in a git repository.\n"
-            f"Please initialize git in this directory: git init && git add . && git commit -m 'Initial commit'"
+            f"Please initialize git in this directory: "
+            "git init && git add . && git commit -m 'Initial commit'"
         )
 
     # Get ref from git repository

@@ -38,7 +38,15 @@ test = [
 
 [tool.ruff]
 line-length = 100
-exclude = ["__pycache__", ".venv", "build", "dist", ".git"]
+exclude = [
+  "__pycache__",
+  ".venv",
+  "build",
+  "dist",
+  ".git",
+  "migrations",
+  "tests",
+]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -46,6 +54,9 @@ indent-style = "space"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90", "N", "I"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
 
 [tool.pytest.ini_options]
 minversion = "6.0"

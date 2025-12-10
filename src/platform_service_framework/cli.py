@@ -14,7 +14,6 @@ from yaml import safe_load
 
 from .utils import get_repo
 
-
 app = App(
     name="platform-service-framework",
     help="Framework for building Django applications",
@@ -206,9 +205,7 @@ def update(
 
         # Write updated answers
         with open(answers_file, "w") as f:
-            f.write(
-                "# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY\n"
-            )
+            f.write("# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY\n")
             yaml.dump(answers, f, default_flow_style=False, sort_keys=False)
 
         print("✓ Updated .copier-answers.yml")
@@ -303,14 +300,16 @@ def validate(
     # Check if it's a git repository
     if not Path(destination / ".git").exists():
         print(
-            "Platform service framework is only supported in git-tracked repositories. Please initialize your repository."
+            "Platform service framework is only supported in git-tracked repositories."
+            " Please initialize your repository."
         )
         return False
 
     # Check if it's a copier project
     if not Path(destination / ".copier-answers.yml").exists():
         print(
-            "No answers file found (.copier-answers.yml), please run the command from the root of the project"
+            "No answers file found (.copier-answers.yml), "
+            "please run the command from the root of the project"
         )
         return False
 
@@ -318,9 +317,7 @@ def validate(
 
     # try to read _commit from answer if it doesnt exist return false
     if "_commit" not in copier_answers:
-        print(
-            "Error: .copier-answers.yml is missing the '_commit' key. Cannot validate project."
-        )
+        print("Error: .copier-answers.yml is missing the '_commit' key. Cannot validate project.")
         return False
 
     # Run test copier "recopy" to retrieve possible conflicts
@@ -340,9 +337,7 @@ def validate(
     config_path = destination / ".protected_files.yaml"
     if not config_path.exists():
         print("Note: .protected_files.yaml not found. Skipping protected files check.")
-        print(
-            "✓ No framework infractions found, your project is ready to be updated! ✓"
-        )
+        print("✓ No framework infractions found, your project is ready to be updated! ✓")
         return True
 
     try:
@@ -358,12 +353,7 @@ def validate(
     # Retrieve conflicts and compare them to the list of protected files
     conflicts = [line for line in output if "conflict" in line or "create" in line]
     infractions = list(
-        {
-            conflict
-            for conflict in conflicts
-            for file in protected_files
-            if file in conflict
-        }
+        {conflict for conflict in conflicts for file in protected_files if file in conflict}
     )
     if infractions:
         print("✗ The following files should not be modified or deleted: ✗")
@@ -371,9 +361,7 @@ def validate(
         print("✗ Please undo these changes and run the command again ✗")
         return False
     else:
-        print(
-            "✓ No framework infractions found, your project is ready to be updated! ✓"
-        )
+        print("✓ No framework infractions found, your project is ready to be updated! ✓")
         return True
 
 

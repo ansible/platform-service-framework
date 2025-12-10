@@ -20,7 +20,9 @@ ANSIBLE_BASE_RBAC_MODEL_REGISTRY = {
 }
 
 # Authentication - insert JWT auth at position 0
-REST_FRAMEWORK__DEFAULT_AUTHENTICATION_CLASSES = "@insert 0 apps.core.authentication.ServiceJWTAuthentication"
+REST_FRAMEWORK__DEFAULT_AUTHENTICATION_CLASSES = (
+    "@insert 0 apps.core.authentication.ServiceJWTAuthentication"
+)
 
 # Middleware - ServicePrefix at start, APIRootView at end
 MIDDLEWARE = [
