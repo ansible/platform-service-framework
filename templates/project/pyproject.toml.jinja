@@ -58,6 +58,16 @@ select = ["E", "F", "W", "C90", "N", "I"]
 [tool.ruff.lint.mccabe]
 max-complexity = 15
 
+[tool.ty.src]
+exclude = [
+    "tests",
+    "apps/**/tests",
+    "migrations",
+]
+
+[tool.ty.rules]
+possibly-missing-implicit-call = "ignore"
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-vs -ra -q"

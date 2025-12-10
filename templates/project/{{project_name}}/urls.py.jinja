@@ -60,3 +60,8 @@ if not settings.DYNACONF.get("IS_RUNNING_TESTS") and settings.DYNACONF.get("DEBU
 
 # Static URL required to serve DRF Browsable API
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# DRF Browsable API Login URL
+urlpatterns += [
+    path("api-auth/", include("rest_framework.urls")),
+]
