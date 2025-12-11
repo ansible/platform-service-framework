@@ -1,3 +1,15 @@
-{% raw %}{% extends "rest_framework/base.html" %}{% block branding %}{% endraw %}
+{% raw %}{% extends "rest_framework/base.html" %}
+
+{% load core_tags %}
+
+{% block branding %}{% endraw %}
 <a class="navbar-brand" rel="nofollow" href="/"> {{project_name}} </a>
-{% raw %}{% endblock %}{% endraw %}
+{% raw %}{% endblock %}
+
+{% block userlinks %}
+{% if user.is_authenticated %}
+  {% logout_link request user csrf_token %}
+{% else %}
+  {% login_link request %}
+{% endif %}
+{% endblock %}{% endraw %}
