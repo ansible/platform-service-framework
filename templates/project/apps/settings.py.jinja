@@ -48,3 +48,13 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ],
 }
+"""REST framework settings."""
+
+SPECTACULAR_SETTINGS__TITLE = "{{project_name}} API"
+"""Title of Swagger the API documentation."""
+SPECTACULAR_SETTINGS__DESCRIPTION = "API documentation for the {{project_name}}"
+"""Description of Swagger the API documentation."""
+SPECTACULAR_SETTINGS__VERSION = "v1"
+"""Version of Swagger the API documentation."""
+SPECTACULAR_SETTINGS__COMPONENT_SPLIT_REQUEST = True
+"""Split components into request and response for generating clients."""
