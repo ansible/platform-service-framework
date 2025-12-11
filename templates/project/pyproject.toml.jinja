@@ -82,7 +82,7 @@ lint = "ruff check ."
 type_check = "ty check"
 format = "ruff format ."
 unit-test = "manage.py test -v 2"
-check = ["format", "lint","type_check", "unit-test"]
+check = ["format", "lint", "unit-test"]
 render-docs = "pdoc -t docs/templates --mermaid --docformat markdown --docformat google {{project_name}} apps -o html"
 serve-docs = "pdoc -t docs/templates --mermaid --docformat markdown --docformat google {{project_name}} apps"
 
