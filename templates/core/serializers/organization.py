@@ -7,4 +7,4 @@ from apps.core.models import Organization
 class OrganizationSerializer(RelatedAccessMixin, NamedCommonModelSerializer):
     class Meta:
         model = Organization
-        fields = '__all__'
+        fields = "__all__"

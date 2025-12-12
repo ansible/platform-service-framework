@@ -15,7 +15,7 @@ class CoreConfig(AppConfig):
 
     @staticmethod
     def _create_managed_roles(sender, **kwargs):
-        from django.apps import apps
         from ansible_base.rbac import permission_registry
+        from django.apps import apps
 
         permission_registry.create_managed_roles(apps)

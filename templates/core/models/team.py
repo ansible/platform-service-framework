@@ -11,4 +11,4 @@ class Team(AbstractTeam):
     """
 
     class Meta:
-        permissions = [('member_team', 'Has all roles assigned to this team')]
+        permissions = [("member_team", "Has all roles assigned to this team")]

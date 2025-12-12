@@ -7,23 +7,23 @@ from apps.core.viewsets import OrganizationViewSet, TeamViewSet, UserViewSet
 router = AssociationResourceRouter()
 
 router.register(
-    r'organizations',
+    r"organizations",
     OrganizationViewSet,
     related_views={
-        'teams': (TeamViewSet, 'teams'),
+        "teams": (TeamViewSet, "teams"),
     },
 )
 
 router.register(
-    r'teams',
+    r"teams",
     TeamViewSet,
     related_views={
-        'organization': (OrganizationViewSet, 'organization'),
+        "organization": (OrganizationViewSet, "organization"),
     },
 )
 
 router.register(
-    r'users',
+    r"users",
     UserViewSet,
-    basename='user',
+    basename="user",
 )
