@@ -8,4 +8,5 @@ class Organization(AbstractOrganization):
     Organizations serve as the top-level container for teams and resources.
     """
 
-    pass
+    class Meta:
+        permissions = [('member_organization', 'User is member of this organization')]
