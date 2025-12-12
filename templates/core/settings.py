@@ -24,6 +24,10 @@ REST_FRAMEWORK__DEFAULT_AUTHENTICATION_CLASSES = (
     "@insert 0 apps.core.authentication.ServiceJWTAuthentication"
 )
 
+# Login/Logout URLs for DRF browsable API
+LOGIN_URL = "/api-auth/login/"
+LOGOUT_URL = "/api-auth/logout/"
+
 # Middleware - ServicePrefix at start, APIRootView at end
 MIDDLEWARE = [
     "dynaconf_merge_unique",
