@@ -142,6 +142,7 @@ Template version: {vcs_ref or "HEAD"}
 @app.command
 def update(
     destination: Path | None = None,
+    core: Annotated[bool, Parameter(alias="-c")] = False,
 ):
     """Update an existing application.
 
@@ -151,10 +152,13 @@ def update(
     ```bash
     # Update project to detected template version:
     platform-service-framework update
+    # Update project and core app:
+    platform-service-framework update --core
     ```
     ---
     Args:
         destination: The root of the repository
+        core: Also update the core app from templates/core
     """
     destination = destination or Path.cwd()
     print(f"Updating your app on {destination}")
@@ -273,6 +277,109 @@ This commit applies updates from the template.
 
     except Exception as e:
         print(f"\nError: Could not commit update: {e}")
+        print("Please review and commit changes manually.")
+        sys.exit(1)
+
+    # Update core app if requested
+    if core:
+        _update_core_app(destination, src_path, vcs_ref)
+
+
+def _update_core_app(destination: Path, src_path: str, vcs_ref: str | None):
+    """Update the core app from templates/core."""
+    core_path = destination / "apps" / "core"
+
+    if not core_path.exists():
+        print("\nWarning: Core app not found at apps/core/. Skipping core update.")
+        return
+
+    core_answers_file = core_path / ".copier-answers.yml"
+    if not core_answers_file.exists():
+        print("\nWarning: Core app missing .copier-answers.yml. Skipping core update.")
+        return
+
+    print("\n" + "=" * 40)
+    print("Updating core app...")
+    print("=" * 40)
+
+    repo = Repo(destination)
+
+    # Read core app's copier answers
+    with open(core_answers_file) as f:
+        core_answers = yaml.safe_load(f)
+
+    old_src = core_answers.get("_src_path")
+    old_branch = core_answers.get("src_branch")
+
+    # Update source in answers if changed
+    source_changed = old_src != src_path
+    branch_changed = old_branch != vcs_ref
+    if source_changed or branch_changed:
+        if source_changed:
+            print(f"Updating core template source to: {src_path}")
+            core_answers["_src_path"] = src_path
+        if branch_changed:
+            print(f"Updating core template branch to: {vcs_ref}")
+            core_answers["src_branch"] = vcs_ref
+
+        # Write updated answers
+        with open(core_answers_file, "w") as f:
+            f.write("# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY\n")
+            yaml.dump(core_answers, f, default_flow_style=False, sort_keys=False)
+
+        print("✓ Updated core .copier-answers.yml")
+
+        # Commit the source change
+        try:
+            repo.git.add(str(core_answers_file))
+            commit_msg = f"""[platform-service-framework] Update core app template source
+
+Old source: {old_src}
+Old branch: {old_branch}
+New source: {src_path}
+New branch: {vcs_ref}
+"""
+            repo.index.commit(commit_msg)
+            print("✓ Committed core .copier-answers.yml changes")
+        except Exception as e:
+            print(f"Warning: Could not commit core .copier-answers.yml: {e}")
+
+    # Run copier update on core app
+    print("\nRunning copier update on core app...")
+    run_update(
+        core_path,
+        vcs_ref=vcs_ref,
+        overwrite=True,
+        skip_answered=True,
+    )
+
+    # Commit core app changes
+    try:
+        # Check for merge conflicts
+        if repo.index.unmerged_blobs():
+            print("\nError: Merge conflicts detected during core app update.")
+            print("Please resolve conflicts manually and commit the changes.")
+            sys.exit(1)
+
+        # Check if there are changes to commit
+        if repo.is_dirty(untracked_files=True):
+            print("\nCommitting core app update changes...")
+            repo.git.add(A=True)
+
+            commit_msg = f"""[platform-service-framework] Update core app from template
+
+Template source: {src_path}
+Template version: {vcs_ref or "HEAD"}
+
+This commit applies updates from templates/core.
+"""
+            repo.index.commit(commit_msg)
+            print("✓ Core app update committed successfully")
+        else:
+            print("\nNo changes from core app update")
+
+    except Exception as e:
+        print(f"\nError: Could not commit core app update: {e}")
         print("Please review and commit changes manually.")
         sys.exit(1)
 
