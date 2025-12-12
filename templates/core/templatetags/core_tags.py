@@ -14,6 +14,13 @@ def _get_full_path(request):
 
 
 @register.simple_tag
+def script_name(request):
+    """Return the SCRIPT_NAME (service prefix) or '/' if not set."""
+    prefix = request.META.get('SCRIPT_NAME', '') or '/'
+    return prefix if prefix.endswith('/') else prefix + '/'
+
+
+@register.simple_tag
 def login_link(request):
     """
     Return a login link using the LOGIN_URL setting.

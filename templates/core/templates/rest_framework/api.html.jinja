@@ -1,12 +1,46 @@
 {% raw %}{% extends "rest_framework/base.html" %}
+{#
+  Custom template override for Django REST Framework's browsable API.
+
+  This template fixes issues when the service runs behind a reverse proxy
+  at a subpath (e.g., /api/example-service/) by ensuring all links respect
+  the SCRIPT_NAME environment variable set by the WSGI server.
+
+  Without these customizations:
+  - The navbar brand link would go to "/" instead of "/api/example-service/"
+  - Login/logout redirects would lose the service prefix
+#}
 
 {% load core_tags %}
+{#
+  Load custom template tags from apps/core/templatetags/core_tags.py:
+  - script_name: Returns SCRIPT_NAME with trailing slash (e.g., "/api/example-service/")
+  - login_link: Renders login link with correct ?next= parameter
+  - logout_link: Renders logout dropdown with correct ?next= parameter and CSRF token
+#}
 
-{% block branding %}{% endraw %}
-<a class="navbar-brand" rel="nofollow" href="/"> {{project_name}} </a>
+{% block branding %}
+{#
+  Override the navbar brand (top-left corner link).
+  Uses {% script_name request %} to dynamically get the service root path.
+
+  - Behind proxy: Returns "/api/example-service/"
+  - Local development: Returns "/"
+#}{% endraw %}
+<a class="navbar-brand" rel="nofollow" href="{% raw %}{% script_name request %}{% endraw %}"> {{project_name}} </a>
 {% raw %}{% endblock %}
 
 {% block userlinks %}
+{#
+  Override the user authentication links (top-right corner).
+
+  Note: For user.is_authenticated to work correctly, the view must NOT set
+  authentication_classes = []. Views can use permission_classes = [AllowAny]
+  to allow unauthenticated access while still populating request.user.
+
+  The custom login_link and logout_link tags handle SCRIPT_NAME-aware redirects
+  so users return to the correct URL after authentication.
+#}
 {% if user.is_authenticated %}
   {% logout_link request user csrf_token %}
 {% else %}
