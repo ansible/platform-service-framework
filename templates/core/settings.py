@@ -28,6 +28,12 @@ REST_FRAMEWORK__DEFAULT_AUTHENTICATION_CLASSES = (
 LOGIN_URL = "/api-auth/login/"
 LOGOUT_URL = "/api-auth/logout/"
 
+# Use custom renderer for correct breadcrumbs with SCRIPT_NAME prefix
+REST_FRAMEWORK__DEFAULT_RENDERER_CLASSES = [
+    "rest_framework.renderers.JSONRenderer",
+    "apps.core.renderers.ServiceBrowsableAPIRenderer",
+]
+
 # Middleware - ServicePrefix at start, APIRootView at end
 MIDDLEWARE = [
     "dynaconf_merge_unique",
