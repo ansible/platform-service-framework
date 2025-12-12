@@ -36,6 +36,8 @@ class ServicePrefixMiddleware:
 
         # If path starts with the service prefix, strip it and set SCRIPT_NAME
         if path.startswith(self.prefix):
+            # Store original full path for DRF breadcrumbs
+            request._original_path = path
             # Remove prefix from path
             new_path = path[len(self.prefix) :] or "/"
             request.path_info = new_path
