@@ -1,8 +1,7 @@
-from rest_framework.viewsets import ModelViewSet
-
 from ansible_base.lib.utils.views.ansible_base import AnsibleBaseView
 from ansible_base.rbac import permission_registry
 from ansible_base.rbac.api.permissions import AnsibleBaseObjectPermissions
+from rest_framework.viewsets import ModelViewSet
 
 
 class BaseViewSet(ModelViewSet, AnsibleBaseView):

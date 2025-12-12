@@ -9,4 +9,4 @@ class Organization(AbstractOrganization):
     """
 
     class Meta:
-        permissions = [('member_organization', 'User is member of this organization')]
+        permissions = [("member_organization", "User is member of this organization")]

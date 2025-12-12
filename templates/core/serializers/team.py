@@ -7,4 +7,4 @@ from apps.core.models import Team
 class TeamSerializer(RelatedAccessMixin, NamedCommonModelSerializer):
     class Meta:
         model = Team
-        fields = '__all__'
+        fields = "__all__"
