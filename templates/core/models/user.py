@@ -8,4 +8,10 @@ class User(AbstractDABUser):
     This model can be extended with additional fields as needed.
     """
 
-    pass
+    encrypted_fields = ['password']
+
+    def related_fields(self, request):
+        return {}
+
+    def get_summary_fields(self):
+        return {}

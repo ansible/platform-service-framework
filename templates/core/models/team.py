@@ -10,4 +10,5 @@ class Team(AbstractTeam):
     settings.ANSIBLE_BASE_ORGANIZATION_MODEL.
     """
 
-    pass
+    class Meta:
+        permissions = [('member_team', 'Has all roles assigned to this team')]
