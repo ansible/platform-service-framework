@@ -1,5 +1,5 @@
 from apps.core.models import Team
-from apps.core.serializers import TeamSerializer
+from apps.core.v1.serializers import TeamSerializer
 
 from .base import BaseViewSet
 
