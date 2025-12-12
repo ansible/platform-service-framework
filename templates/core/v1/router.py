@@ -1,8 +1,8 @@
-"""Router configuration for core models."""
+"""Router configuration for v1 API."""
 
 from ansible_base.lib.routers import AssociationResourceRouter
 
-from apps.core.viewsets import OrganizationViewSet, TeamViewSet, UserViewSet
+from apps.core.v1.viewsets import OrganizationViewSet, TeamViewSet, UserViewSet
 
 router = AssociationResourceRouter()
 

@@ -1,5 +1,5 @@
 from apps.core.models import Organization
-from apps.core.serializers import OrganizationSerializer
+from apps.core.v1.serializers import OrganizationSerializer
 
 from .base import BaseViewSet
 

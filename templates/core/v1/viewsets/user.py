@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.core.models import User
-from apps.core.serializers import UserSerializer
+from apps.core.v1.serializers import UserSerializer
 
 from .base import BaseViewSet
 
