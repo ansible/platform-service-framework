@@ -14,9 +14,9 @@ class UserViewSet(BaseViewSet):
     serializer_class = UserSerializer
     permission_classes = [AnsibleBaseUserPermissions]
 
-    def filter_queryset(self, qs):
-        qs = visible_users(self.request.user, queryset=qs)
-        return super(BaseViewSet, self).filter_queryset(qs)
+    def filter_queryset(self, queryset):
+        queryset = visible_users(self.request.user, queryset=queryset)
+        return super(BaseViewSet, self).filter_queryset(queryset)
 
     @action(detail=False, methods=["get"])
     def me(self, request):

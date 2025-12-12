@@ -9,8 +9,8 @@ class BaseViewSet(ModelViewSet, AnsibleBaseView):
 
     permission_classes = [AnsibleBaseObjectPermissions]
 
-    def filter_queryset(self, qs):
-        cls = qs.model
+    def filter_queryset(self, queryset):
+        cls = queryset.model
         if permission_registry.is_registered(cls):
-            qs = cls.access_qs(self.request.user, queryset=qs)
-        return super().filter_queryset(qs)
+            queryset = cls.access_qs(self.request.user, queryset=queryset)
+        return super().filter_queryset(queryset)
