@@ -1,11 +1,11 @@
+from ansible_base.lib.utils.views.ansible_base import AnsibleBaseView
 from django.contrib.admindocs.views import simplify_regex
 from django.urls import URLPattern, URLResolver, get_resolver
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 
-class APIRootView(APIView):
+class APIRootView(AnsibleBaseView):
     """
     Dynamically discovers and lists available API endpoints.
 
@@ -20,7 +20,6 @@ class APIRootView(APIView):
     """
 
     permission_classes = [AllowAny]
-    authentication_classes = []
 
     def get(self, request):
         resolver = get_resolver()
