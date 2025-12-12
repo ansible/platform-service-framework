@@ -16,7 +16,7 @@ class HealthView(AnsibleBaseView):
     authentication_classes = []
 
     def get(self, request):
-        health_status = {"status": "healthy", "checks": {}}
+        health_status: dict = {"status": "healthy", "checks": {}}
 
         # Database check
         try:
