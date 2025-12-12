@@ -40,8 +40,8 @@ urlpatterns += [
 
 # Override empty router views from DAB with dynamic API root
 urlpatterns += [
-    path("v1/", APIRootView.as_view(), name="v1-index"),
-    path("", APIRootView.as_view(), name="index"),
+    path("v1/", APIRootView.as_view(view_name="v1"), name="v1-index"),
+    path("", APIRootView.as_view(view_name="{{project_name}}"), name="index"),
 ]
 
 # Extend URL patterns for each app

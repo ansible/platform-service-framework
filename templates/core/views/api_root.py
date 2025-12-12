@@ -15,11 +15,19 @@ class APIRootView(AnsibleBaseView):
     matching pattern wins (like `show_urls --unsorted`).
 
     Usage:
-        path('v1/', APIRootView.as_view(), name='v1-root'),
-        path('', APIRootView.as_view(), name='index'),
+        path('v1/', APIRootView.as_view(view_name='v1'), name='v1-root'),
+        path('', APIRootView.as_view(view_name='my_project'), name='index'),
     """
 
     permission_classes = [AllowAny]
+    view_name = None  # Set via as_view(view_name="...")
+
+    def get_view_name(self):
+        """Return the view name for breadcrumbs."""
+        if self.view_name:
+            return self.view_name
+        # Fallback to default
+        return "API Root"
 
     def get(self, request):
         resolver = get_resolver()
