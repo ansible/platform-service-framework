@@ -107,18 +107,25 @@ with open('.copier-answers.yml') as f:
 """
 
 [tool.poe.tasks.update]
+help = "Update the project from template (use --core to also update core templates)"
+args = [
+  { name = "core", help = "Also update core templates", type = "boolean" }
+]
 shell = """
 python -c "
 import yaml
+import os
 with open('.copier-answers.yml') as f:
     d = yaml.safe_load(f)
     branch = d.get('src_branch', '')
     src = d.get('_src_path', '')
+    core = '$core'
+    core_flag = ' --core' if core == 'True' else ''
     from pathlib import Path
     if Path(src).is_dir():
-        print(f'uvx --refresh --from {src} platform-service-framework update')
+        print(f'uvx --refresh --from {src} platform-service-framework update{core_flag}')
     else:
-        print(f'uvx --refresh git+{src}@{branch} update')
+        print(f'uvx --refresh git+{src}@{branch} update{core_flag}')
 " | sh
 """
 
