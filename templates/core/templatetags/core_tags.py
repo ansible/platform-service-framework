@@ -8,9 +8,14 @@ register = template.Library()
 
 
 def _get_full_path(request):
-    """Get full path including SCRIPT_NAME (service prefix)."""
-    script_name = request.META.get("SCRIPT_NAME", "")
-    return script_name + request.get_full_path()
+    """Get full path including service prefix.
+
+    The middleware patches get_full_path() to return the prefixed path
+    for both access patterns:
+    - /api/<service>/...: patched to return /api/<service>/...
+    - /<service>/...: patched to return /<service>/...
+    """
+    return request.get_full_path()
 
 
 @register.simple_tag

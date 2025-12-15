@@ -82,8 +82,18 @@ class APIRootView(AnsibleBaseView):
             seen_paths.add(first_segment)
 
             # Build the URL for this direct child
-            script_name = request.META.get("SCRIPT_NAME", "")
-            child_url = request.build_absolute_uri(script_name + prefix + first_segment + "/")
+            # Check for API service prefix (set by ServicePrefixMiddleware for /api/<service>/...)
+            # or fall back to SCRIPT_NAME (set for /<service>/...)
+            api_service_prefix = getattr(request, "_api_service_prefix", None)
+            if api_service_prefix:
+                # For /api/<service>/... URLs, use the stored API prefix
+                child_url = request.build_absolute_uri(
+                    api_service_prefix + prefix[len("/api") :] + first_segment + "/"
+                )
+            else:
+                # For /<service>/... URLs, SCRIPT_NAME is already set
+                script_name = request.META.get("SCRIPT_NAME", "")
+                child_url = request.build_absolute_uri(script_name + prefix + first_segment + "/")
 
             # Use the path segment as the name (cleaner than pattern names)
             endpoints[first_segment] = child_url

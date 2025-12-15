@@ -31,17 +31,18 @@ urlpatterns = []
 
 # Django Ansible Base URLs
 urlpatterns += [
-    path("v1/", include(api_version_urls)),
-    path("v1/", include(resource_api_urls)),
-    path("v1/", include(rbac_service_urls)),
+    path("api/v1/", include(api_version_urls)),
+    path("api/v1/", include(resource_api_urls)),
+    path("api/v1/", include(rbac_service_urls)),
+    path("api/", include(api_urls)),
     path("", include(root_urls)),
-    path("", include(api_urls)),
 ]
 
 # Override empty router views from DAB with dynamic API root
 urlpatterns += [
-    path("v1/", APIRootView.as_view(view_name="v1"), name="v1-index"),
-    path("", APIRootView.as_view(view_name="{{project_name}}"), name="index"),
+    path("api/v1/", APIRootView.as_view(view_name="v1"), name="api-v1-index"),
+    path("api/", APIRootView.as_view(view_name="api"), name="api-index"),
+    path("", APIRootView.as_view(view_name="root"), name="root-index"),
 ]
 
 # Extend URL patterns for each app
