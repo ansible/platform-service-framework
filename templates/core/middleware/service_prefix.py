@@ -56,7 +56,7 @@ class ServicePrefixMiddleware:
             def patched_get_full_path(force_append_slash=False):
                 # Get the canonical path and replace /api/ with /api/<service>/
                 canonical = original_get_full_path(force_append_slash)
-                if canonical.startswith("/api/") or canonical.startswith("/api?"):
+                if canonical.startswith(("/api/", "/api?")):
                     return api_prefix + canonical[4:]  # len("/api") = 4
                 return canonical
 

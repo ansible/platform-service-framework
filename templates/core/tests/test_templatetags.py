@@ -22,7 +22,7 @@ def _patch_get_full_path_api_prefix(request, api_prefix):
 
     def patched_get_full_path(force_append_slash=False):
         canonical = original_get_full_path(force_append_slash)
-        if canonical.startswith("/api/") or canonical.startswith("/api?"):
+        if canonical.startswith(("/api/", "/api?")):
             return api_prefix + canonical[4:]
         return canonical
 

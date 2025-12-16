@@ -49,7 +49,7 @@ class TestAPIRootView(TestCase):
         response = self.client.get("/")
         data = response.json()
         # Should not include __debug__ paths
-        for key in data.keys():
+        for key in data:
             self.assertNotIn("__debug__", key)
 
     def test_api_root_get_view_name(self):
