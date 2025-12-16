@@ -94,6 +94,24 @@ class TestServicePrefixMiddleware(TestCase):
         for url in data.values():
             self.assertIn(f"/{self.service_name}/", url)
 
+    def test_similar_prefix_not_matched(self):
+        """Paths with similar but not matching prefix should 404.
+
+        Ensures segment boundary check prevents /<service>foo from matching /<service>.
+        """
+        # /<service-name>foo/ should NOT match /<service-name>/
+        response = self.client.get(f"/{self.service_name}extra/ping/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_api_similar_prefix_not_matched(self):
+        """API paths with similar but not matching prefix should 404.
+
+        Ensures segment boundary check prevents /api/<service>foo from matching.
+        """
+        # /api/<service-name>extra/ should NOT match /api/<service-name>/
+        response = self.client.get(f"/api/{self.service_name}extra/v1/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 
 class TestAPIRootViewMiddleware(TestCase):
     def setUp(self):

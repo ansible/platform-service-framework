@@ -16,6 +16,15 @@ from django.conf import settings
 from django.urls import set_script_prefix
 
 
+def _has_prefix(path, prefix):
+    """Check if path starts with prefix at a segment boundary.
+
+    Returns True if path equals prefix or starts with prefix followed by '/'.
+    This prevents '/metrics-servicefoo' from matching prefix '/metrics-service'.
+    """
+    return path == prefix or path.startswith(prefix + "/")
+
+
 class ServicePrefixMiddleware:
     """
     Middleware that handles /<service-name> prefix in URLs.
@@ -40,7 +49,7 @@ class ServicePrefixMiddleware:
         # Store original path for DRF breadcrumbs
         # Patch get_full_path to return the original path for templates
         api_prefix = f"/api{self.service_prefix}"
-        if path.startswith(api_prefix):
+        if _has_prefix(path, api_prefix):
             request._original_path = path
             request._api_service_prefix = api_prefix
             new_path = "/api" + path[len(api_prefix) :] or "/api/"
@@ -63,7 +72,7 @@ class ServicePrefixMiddleware:
             request.get_full_path = patched_get_full_path
         # Handle /<service-name>/... → /...
         # Set SCRIPT_NAME so reverse() generates /<service-name>/... URLs
-        elif path.startswith(self.service_prefix):
+        elif _has_prefix(path, self.service_prefix):
             # Store original path for DRF breadcrumbs
             request._original_path = path
             new_path = path[len(self.service_prefix) :] or "/"
