@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -18,7 +20,7 @@ def create_managed_roles(db):
 
 @pytest.fixture
 def rando(db):
-    return User.objects.create(username='rando')
+    return User.objects.create(username=f'rando-{uuid.uuid4().hex[:8]}')
 
 
 @pytest.fixture
@@ -53,7 +55,12 @@ def team_member_rd(db):
 
 @pytest.fixture
 def admin_user(db):
-    return User.objects.create_superuser(username='admin', password='admin', email='admin@test.com')
+    unique_id = uuid.uuid4().hex[:8]
+    return User.objects.create_superuser(
+        username=f'admin-{unique_id}',
+        password=f'password-{unique_id}',
+        email=f'admin-{unique_id}@test.com',
+    )
 
 
 @pytest.fixture

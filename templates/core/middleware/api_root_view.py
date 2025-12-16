@@ -23,15 +23,15 @@ class APIRootViewMiddleware:
         response = self.get_response(request)
 
         # Only intercept 404s for paths ending with /
-        if response.status_code == 404 and request.path.endswith("/"):
-            if self._has_child_routes(request.path):
-                # Serve the endpoint index view
-                view = APIRootView.as_view()
-                index_response = view(request)
-                # Render the response if needed (DRF responses need rendering)
-                if hasattr(index_response, "render"):
-                    index_response.render()
-                return index_response
+        is_404_with_trailing_slash = response.status_code == 404 and request.path.endswith("/")
+        if is_404_with_trailing_slash and self._has_child_routes(request.path):
+            # Serve the endpoint index view
+            view = APIRootView.as_view()
+            index_response = view(request)
+            # Render the response if needed (DRF responses need rendering)
+            if hasattr(index_response, "render"):
+                index_response.render()
+            return index_response
 
         return response
 
