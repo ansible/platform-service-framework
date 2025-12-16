@@ -44,6 +44,9 @@ urlpatterns += [
     path("", APIRootView.as_view(view_name="root"), name="root-index"),
 ]
 
+# Extend URL patterns from apps/urls.py
+urlpatterns += [path("", include("apps.urls"))]
+
 # Extend URL patterns for each app
 for app in settings.LOADED_APPS:
     app_name = app.split(".")[-1]

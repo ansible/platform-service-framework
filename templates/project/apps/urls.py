@@ -1,16 +1,17 @@
 """
-URL configuration for this app.
+URL configuration for the apps package.
 
-This file defines URL patterns specific to this app. It is automatically loaded
-by the platform-service-framework when the app is registered and discovered via
-the LOADED_APPS mechanism.
+This file serves as the primary location for adding custom URL patterns to your
+service. Since the top-level urls.py is managed by the platform-service-framework
+and should not be modified directly, use this file for any custom URLs your
+service needs.
 
 ## LOADED_APPS Mechanism
 
 The framework dynamically discovers and loads URL patterns from apps:
 
-1. **App registration**: Apps must be added to the `project_applications` list
-   in `apps/settings.py` (e.g., "apps.myapp").
+1. **App registration**: Apps are registered in `apps/settings.py` under the
+   `project_applications` list (e.g., ["apps.core", "apps.api"]).
 
 2. **Discovery**: At runtime, the framework filters `INSTALLED_APPS` for entries
    that start with "apps." and have a corresponding directory in the apps folder.
@@ -18,9 +19,8 @@ The framework dynamically discovers and loads URL patterns from apps:
 3. **LOADED_APPS population**: The filtered list becomes `settings.LOADED_APPS`,
    preserving the order defined in `project_applications`.
 
-4. **URL loading**: The framework imports each app's urls.py and appends any
-   `urlpatterns` to the main URL configuration. If this file doesn't exist or
-   has no urlpatterns, the app is silently skipped.
+4. **URL loading**: The framework iterates through LOADED_APPS and imports each
+   app's urls.py, appending patterns to the main urlpatterns.
 
 ## Controlling URL Loading Order
 
@@ -49,11 +49,10 @@ The URL loading order follows the order in `project_applications` in
 
 Use this when you want to change the overall priority of an entire app.
 
-### Option 2: Use `apps/urls.py`
+### Option 2: Use this file (apps/urls.py)
 
-The `apps/urls.py` file loads BEFORE all individual app URL patterns, giving
-you a way to define URLs that are independent of app order. This provides
-finer control:
+This file loads BEFORE all individual app URL patterns, giving you a way to
+define URLs that are independent of app order. This provides finer control:
 
 - Add a single high-priority URL without reordering apps
 - Define URLs that don't belong to any specific app
@@ -66,32 +65,30 @@ need a specific URL to take priority without changing app order.
 
 1. Django Ansible Base URLs (DAB)
 2. Dynamic API root view overrides
-3. Cross-app/custom URL patterns (apps/urls.py) <-- use this for priority URLs
-4. >>> Individual app URL patterns (this file, order from project_applications) <<<
+3. >>> This file (apps/urls.py) <<<  -- BEFORE individual apps
+4. Individual app URL patterns (order from project_applications in apps/settings.py)
 5. Debug/development URLs
 
-## Best Practices
+## Example Usage
 
-- Use versioned paths for API endpoints: path("api/v1/...", ...)
-- Use descriptive names for reverse URL lookups: name="resource-list"
-- Keep URL patterns focused on this app's domain
-- For cross-app or priority URLs, use apps/urls.py instead
-
-## Example
-
-    from django.urls import include, path
-
-    from .v1 import urls as v1_urls
-    from .views import SomeView
+    from django.urls import path
+    from apps.core.views import SomeView
+    from apps.api.views import AnotherView
 
     urlpatterns = [
-        path("api/v1/", include(v1_urls)),
-        path("api/v1/some-endpoint/", SomeView.as_view(), name="some-endpoint"),
+        # Service-specific endpoint
+        path("api/v1/service-info/", ServiceInfoView.as_view(), name="service-info"),
+
+        # Priority pattern - matches before any app patterns
+        path("api/v1/critical/", CriticalView.as_view(), name="critical"),
+
+        # Cross-app endpoint combining data from multiple apps
+        path("api/v1/combined/", CombinedView.as_view(), name="combined"),
     ]
 
 """
 
 
 urlpatterns = [
-    # Define your app-specific URL patterns here
+    # Define your service-specific, priority, or cross-app URL patterns here
 ]
