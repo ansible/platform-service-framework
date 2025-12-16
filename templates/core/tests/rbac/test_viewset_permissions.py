@@ -1,15 +1,23 @@
+import uuid
+
 import pytest
+
+
+def make_user_data():
+    unique_id = uuid.uuid4().hex[:8]
+    return {'username': f'newuser-{unique_id}', 'password': f'password-{unique_id}'}
 
 
 @pytest.mark.django_db
 class TestSuperuserAccess:
     """Superuser should have full CRUD on all resources."""
 
-    @pytest.mark.parametrize('endpoint,data', [
-        ('/api/v1/organizations/', {'name': 'New Org'}),
-        ('/api/v1/users/', {'username': 'newuser', 'password': 'pass123'}),
+    @pytest.mark.parametrize('endpoint,data_factory', [
+        ('/api/v1/organizations/', lambda: {'name': 'New Org'}),
+        ('/api/v1/users/', make_user_data),
     ])
-    def test_superuser_can_create(self, admin_api_client, endpoint, data):
+    def test_superuser_can_create(self, admin_api_client, endpoint, data_factory):
+        data = data_factory()
         r = admin_api_client.post(endpoint, data)
         assert r.status_code == 201
 
@@ -26,11 +34,12 @@ class TestSuperuserAccess:
 class TestNormalUserAccess:
     """Normal users without roles should have no access."""
 
-    @pytest.mark.parametrize('endpoint,data', [
-        ('/api/v1/organizations/', {'name': 'New Org'}),
-        ('/api/v1/users/', {'username': 'hacker', 'password': 'hacked'}),
+    @pytest.mark.parametrize('endpoint,data_factory', [
+        ('/api/v1/organizations/', lambda: {'name': 'New Org'}),
+        ('/api/v1/users/', make_user_data),
     ])
-    def test_cannot_create(self, user_api_client, endpoint, data):
+    def test_cannot_create(self, user_api_client, endpoint, data_factory):
+        data = data_factory()
         r = user_api_client.post(endpoint, data)
         assert r.status_code == 403
 
