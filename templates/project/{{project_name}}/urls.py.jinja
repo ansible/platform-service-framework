@@ -2,13 +2,81 @@
 """
 URL configuration for {{project_name}}.
 
-This file is managed by the Ansible Services Framework
+This file is managed by the platform-service-framework and should not be edited
+directly. For custom URL patterns, use `apps/urls.py` or individual app urls.py.
 
-## Loading order
+## LOADED_APPS Mechanism
 
-1. Load the base URL patterns (including DAB)
-2. Load the URL patterns for each app
-3. Load the debug and development URLS
+The framework dynamically discovers and loads URL patterns from apps:
+
+1. **App registration**: Apps are registered in `apps/settings.py` under the
+   `project_applications` list (e.g., `["apps.core", "apps.api"]`).
+
+2. **Discovery**: At runtime, the framework filters `INSTALLED_APPS` for entries
+   that start with `apps.` and have a corresponding directory in the apps folder.
+
+3. **LOADED_APPS population**: The filtered list becomes `settings.LOADED_APPS`,
+   preserving the order defined in `project_applications`.
+
+4. **URL loading**: The framework iterates through LOADED_APPS and imports each
+   app's `urls.py`, appending patterns to the main urlpatterns.
+
+## Full URL Loading Order
+
+Django uses first-match routing, so loading order determines which pattern
+handles a request when multiple patterns could match.
+
+1. Django Ansible Base URLs (DAB)
+2. Dynamic API root view overrides
+3. Cross-app/custom URL patterns (`apps/urls.py`)
+4. Individual app URL patterns (order from `project_applications` in `apps/settings.py`)
+5. Debug/development URLs
+
+## Controlling URL Loading Order
+
+**Example conflict**: If both `apps.core` and `apps.api` define a pattern for
+`api/v1/users/`, only the first-loaded app's pattern will handle requests.
+The other pattern becomes unreachable.
+
+You have two options to control this:
+
+### Option 1: Reorder apps in `project_applications`
+
+The URL loading order follows the order in `project_applications` in
+`apps/settings.py`. Reordering apps there changes their URL loading order.
+
+- If `project_applications = ["apps.core", "apps.api"]`, core's URLs load first
+- If two apps define the same URL pattern, the first one in the list wins
+
+**Trade-offs**:
+- Changing app order affects settings loading order (each app's `settings.py`
+  is loaded in this order)
+- This changes URL loading order for ALL URLs in the app - you cannot load
+  a single URL from app B before app A while keeping the rest of app B after
+
+Use this when you want to change the overall priority of an entire app.
+
+### Option 2: Use `apps/urls.py`
+
+The `apps/urls.py` file loads BEFORE all individual app URL patterns, giving
+you a way to define URLs that are independent of app order. This provides
+finer control:
+
+- Add a single high-priority URL without reordering apps
+- Define URLs that don't belong to any specific app
+- Override patterns from any app regardless of app order
+
+Use this for service-level customizations, cross-app endpoints, or when you
+need a specific URL to take priority without changing app order.
+
+## Where to Add URLs
+
+| Use Case | Location |
+|----------|----------|
+| App-specific endpoints | `apps/<app_name>/urls.py` |
+| Service-level customizations | `apps/urls.py` |
+| Priority/override patterns | `apps/urls.py` |
+| Cross-app endpoints | `apps/urls.py` |
 
 """
 

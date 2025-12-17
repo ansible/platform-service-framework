@@ -1,0 +1,30 @@
+"""
+URL configuration for this app.
+
+This file defines URL patterns specific to this app. It is automatically loaded
+by the platform-service-framework when the app is registered in `apps/settings.py`
+under `project_applications`.
+
+URLs defined here load at step 4 in the URL loading order, after `apps/urls.py`
+(step 3). The order among apps follows the order in `project_applications`.
+
+For full documentation, see: {{project_name}}/urls.py
+
+## Example
+
+    from django.urls import include, path
+
+    from .v1 import urls as v1_urls
+    from .views import SomeView
+
+    urlpatterns = [
+        path("api/v1/", include(v1_urls)),
+        path("api/v1/some-endpoint/", SomeView.as_view(), name="some-endpoint"),
+    ]
+
+"""
+
+
+urlpatterns = [
+    # Define your app-specific URL patterns here
+]
