@@ -1,0 +1,173 @@
+"""
+Production environment settings.
+
+This file is loaded when {{ project_name | upper }}_MODE=production and serves three purposes:
+
+1. ZERO OUT SENSITIVE INFORMATION
+   All sensitive settings (passwords, keys, secrets) are explicitly set to empty
+   strings here, even if they already default to empty. This ensures production
+   never accidentally inherits insecure defaults from development or defaults.py.
+   These values MUST be provided via environment variables or external config.
+
+2. SET PRODUCTION-APPROPRIATE DEFAULTS
+   Override settings with values that are secure and appropriate for production:
+   - DEBUG = False (never run debug mode in production)
+   - Disable permissive RBAC settings
+   - Configure gateway integration URLs
+   - Require JWT authentication
+
+3. VALIDATE IMPORTANT SETTINGS
+   Each critical setting has a corresponding Dynaconf Validator that runs at
+   startup. If any required setting is missing or invalid, the application
+   will fail to start with a clear error message. This prevents misconfigured
+   deployments from running.
+
+Usage:
+   export {{ project_name | upper }}_MODE=production
+   export {{ project_name | upper }}_SECRET_KEY=your-secret-key
+   export {{ project_name | upper }}_DATABASES__default__PASSWORD=your-db-password
+   # ... set all other required environment variables
+   python manage.py runserver
+
+Validators are registered in {{ project_name }}/settings.py and run during export().
+"""
+
+from dynaconf import Validator
+
+validators = []
+
+# =============================================================================
+# Security Settings
+# =============================================================================
+
+DEBUG = False
+ALLOW_SHARED_RESOURCE_CUSTOM_ROLES = False
+validators.append(
+    Validator(
+        "ALLOW_SHARED_RESOURCE_CUSTOM_ROLES",
+        eq=False,
+        messages={"operations": "ALLOW_SHARED_RESOURCE_CUSTOM_ROLES must be False."},
+    ),
+)
+
+ALLOW_LOCAL_ASSIGNING_JWT_ROLES = False
+validators.append(
+    Validator(
+        "ALLOW_LOCAL_ASSIGNING_JWT_ROLES",
+        eq=False,
+        messages={"operations": "ALLOW_LOCAL_ASSIGNING_JWT_ROLES must be False."},
+    ),
+)
+
+# =============================================================================
+# Resource Server / Gateway Integration
+# =============================================================================
+
+RESOURCE_SERVER__URL = ""
+validators.append(
+    Validator(
+        "RESOURCE_SERVER__URL",
+        must_exist=True,
+        ne="",
+        messages={"operations": "RESOURCE_SERVER__URL must be set."},
+    ),
+)
+
+RESOURCE_SERVER__SECRET_KEY = ""
+validators.append(
+    Validator(
+        "RESOURCE_SERVER__SECRET_KEY",
+        must_exist=True,
+        ne="",
+        messages={"operations": "RESOURCE_SERVER__SECRET_KEY must be set."},
+    ),
+)
+
+# =============================================================================
+# Authentication
+# =============================================================================
+
+ANSIBLE_BASE_JWT_KEY = ""
+validators.append(
+    Validator(
+        "ANSIBLE_BASE_JWT_KEY",
+        must_exist=True,
+        ne="",
+        messages={
+            "operations": ("ANSIBLE_BASE_JWT_KEY must be set. "),
+        },
+    ),
+)
+
+REST_FRAMEWORK__DEFAULT_AUTHENTICATION_CLASSES = [
+    "apps.core.authentication.ServiceJWTAuthentication",
+]
+validators.append(
+    Validator(
+        "REST_FRAMEWORK__DEFAULT_AUTHENTICATION_CLASSES",
+        must_exist=True,
+        condition=lambda v: "apps.core.authentication.ServiceJWTAuthentication" in v,
+        messages={
+            "condition": (
+                "REST_FRAMEWORK__DEFAULT_AUTHENTICATION_CLASSES must contain "
+                "'apps.core.authentication.ServiceJWTAuthentication'."
+            ),
+        },
+    ),
+)
+
+# =============================================================================
+# Django Core
+# =============================================================================
+
+SECRET_KEY = ""
+validators.append(
+    Validator(
+        "SECRET_KEY",
+        must_exist=True,
+        ne="",
+        messages={"operations": "SECRET_KEY must be set and not empty."},
+    ),
+)
+
+# =============================================================================
+# Database Credentials
+# =============================================================================
+
+DATABASES__default__HOST = ""
+validators.append(
+    Validator(
+        "DATABASES__default__HOST",
+        must_exist=True,
+        ne="",
+        messages={"operations": "DATABASES__default__HOST must be set."},
+    ),
+)
+
+DATABASES__default__USER = ""
+validators.append(
+    Validator(
+        "DATABASES__default__USER",
+        must_exist=True,
+        ne="",
+        messages={"operations": "DATABASES__default__USER must be set."},
+    ),
+)
+
+DATABASES__default__PASSWORD = ""
+validators.append(
+    Validator(
+        "DATABASES__default__PASSWORD",
+        must_exist=True,
+        ne="",
+        messages={"operations": "DATABASES__default__PASSWORD must be set."},
+    ),
+)
+
+# =============================================================================
+# URL Configuration
+# =============================================================================
+
+# Production login/logout URLs for gateway integration
+LOGIN_URL = "/api/gateway/v1/login/"
+LOGOUT_URL = "/api/gateway/v1/logout/"

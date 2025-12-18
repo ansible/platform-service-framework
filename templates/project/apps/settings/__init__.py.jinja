@@ -1,0 +1,51 @@
+"""
+This is the initialization for the apps.settings module.
+don't declare settings here, declare the settings in one of
+the following places:
+
+Read Only (overridable)
+
+- `{{ project_name }}/settings.py` - Framework defaults
+
+Editable:
+
+- `apps/settings/defaults.py` - Defaults for the whole project
+- `apps/core/settings.py` - Core settings, DAB related settings
+- `apps/*/settings.py` - Each app settings in the loading order
+- `apps/settings/{mode}.py` - Settings specific to the current `{{ project_name | upper }}_MODE`
+- `settings.local.py` - For local settings (git ignored)
+- `/etc/ansible-automation-platoform/{{project_name}}/settings.yaml` - for prod environment overrides
+- `{{ project_name | upper }}_` prefixed environment variables
+
+Declaring Settings:
+
+To merge with previously defined setting use any Dynaconf merging markers:
+
+`@merge`, `@merge_unique`, `@insert` on string values and
+`dynaconf_merge` or `dynaconf_merge_unique` on data structures.
+
+Examples:
+
+```python
+INSTALLED_APPS = "@merge_unique new_app"
+MIDDLEWARES = "@insert 1 my_second_middleware"
+DATABASES__default__PORT = 1234
+LOGGING__loggers = {
+    "dynaconf_merge": True,
+    "foobar": {...}
+}
+```
+
+To defer the settings definition to post load use a hook:
+
+```python
+from dynaconf import post_hook
+
+@post_hook
+def add_foo_at_the_end_of_settings_loading(settings) -> dict:
+    return {"LATE_SETTING": "value"}
+```
+
+"""
+
+# Must be empty, declare your settings on a separate file.
