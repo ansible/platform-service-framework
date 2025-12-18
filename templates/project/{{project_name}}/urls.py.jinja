@@ -125,9 +125,12 @@ for app in settings.LOADED_APPS:
 
 # Debug and Development URLS
 if not settings.DYNACONF.get("IS_RUNNING_TESTS") and settings.DYNACONF.get("DEBUG"):
-    from debug_toolbar.toolbar import debug_toolbar_urls  # noqa
+    try:
+        from debug_toolbar.toolbar import debug_toolbar_urls  # noqa
 
-    urlpatterns.extend(debug_toolbar_urls())
+        urlpatterns.extend(debug_toolbar_urls())
+    except ImportError:
+        pass  # debug_toolbar not installed
 
 # DRF Browsable API Login URL
 urlpatterns += [
