@@ -1,0 +1,27 @@
+# Copy this file to settings.local.py and customize for your environment
+# Ensure to have on your shell:
+#
+# DJANGO_SETTINGS_MODULE={{project_name}}.settings
+# {{projext_name | upper }}_MODE=development
+# {{projext_name | upper }}_LOG_LEVEL=DEBUG
+
+DEBUG = True
+SECRET_KEY = "dev-secret-key-change-in-production"
+
+# Database Configuration (PostgreSQL)
+# Using dunder notation for nested settings
+DATABASES__default__ENGINE = "django.db.backends.postgresql"
+DATABASES__default__HOST = "127.0.0.1"
+DATABASES__default__PORT = 5432
+DATABASES__default__USER = "{{project_name}}"
+DATABASES__default__PASSWORD = "{{project_name}}"
+DATABASES__default__NAME = "{{project_name}}"
+DATABASES__default__OPTIONS__sslmode = "prefer"
+
+# Test Database Configuration
+TEST_DB_NAME = "test_{{project_name}}"
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
+
+# Service Configuration
+ID = "generated-uuid"

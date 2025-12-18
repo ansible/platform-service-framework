@@ -51,6 +51,7 @@ uv run dynaconf inspect -k VARIABLE
 
 import os
 import sys
+from importlib import import_module
 from pathlib import Path
 
 from ansible_base.lib.dynamic_config import (
@@ -65,13 +66,13 @@ from dynaconf.loaders import execute_instance_hooks
 BASE_DIR = Path(__file__).resolve().parent.parent
 """Build paths inside the project like this: BASE_DIR / 'subdir'"""
 
-SECRET_KEY = "django-insecure-k^a&fnx3ulh*d2nl%q680o+xkr^5o+c$5=lzo7vd-7=#qmadg("
+SECRET_KEY = "django-insecure-k^a&fnx3ulh*d2nl%q680o+xkr^5o+c$5=lzo7vd-7=#qmadg("  # noqa
 """SECURITY WARNING: keep the secret key used in production secret!"""
 
-DEBUG = True
+DEBUG = False
 """SECURITY WARNING: don't run with debug turned on in production!"""
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 """List of allowed hosts"""
 
 INSTALLED_APPS = [
@@ -124,6 +125,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "{{project_name}}.wsgi.application"
 """WSGI application configuration"""
+ASGI_APPLICATION = "{{project_name}}.asgi.application"
+"""ASGI application configuration"""
 
 DATABASES = {
     "default": {
@@ -149,6 +152,74 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 """Password validation configuration"""
 
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",  # Default Django auth
+]
+
+# Session Configuration
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+
+# Security Settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+
+LOG_LEVEL = os.environ.get("{{ project_name | upper }}_LOG_LEVEL", "INFO").upper()
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "request_id": {
+            "()": "ansible_base.lib.logging.filters.RequestIdFilter",
+        },
+    },
+    "formatters": {
+        "simple": {
+            "format": "{asctime} {levelname:<8} {name} {message}",
+            "style": "{",
+        },
+        "verbose": {
+            "format": "{asctime} {levelname:<8} [{request_id}] {name} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+            "filters": ["request_id"],
+        },
+    },
+    "loggers": {
+        "ansible_base": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "{{ project_name }}": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "django": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "apps": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": True,
+        },
+    },
+}
+
 LANGUAGE_CODE = "en-us"
 """Language code for this installation."""
 
@@ -163,6 +234,20 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 """Static files configuration"""
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+"""Root directory for static files"""
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+"""Directories to search for static files"""
+
+MEDIA_URL = "media/"
+"""Media files URL endpoint"""
+
+MEDIA_ROOT = BASE_DIR / "media"
+"""Root directory for media files"""
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 """Default primary key field type"""
@@ -181,17 +266,24 @@ default_variables = {k: v for k, v in locals().items() if k.isupper()}
 app_prefix = "{{project_name | upper }}"
 """Application prefix for environment variables filtering."""
 
+os.environ.setdefault("{{ project_name | upper }}_MODE", "development")
+environment = os.environ.get("{{ project_name | upper }}_MODE", "development").lower()
+"""The current environment, by default development"""
+
 DYNACONF = factory(__name__, app_prefix, add_dab_settings=False, **default_variables)
 """Dynaconf instance that comes with settings injected by DAB"""
 
 apps_dir = Path(BASE_DIR / "apps")
 """The directory where the django apps will be discovered from"""
 
-# Load top level apps settings if exists
-if (apps_settings := Path(apps_dir / "settings.py")).exists():
+apps_settings_dir = apps_dir / "settings"
+"""The directory where the django apps will be discovered from"""
+
+# Load top level apps default settings if exists
+if (apps_settings := Path(apps_settings_dir / "defaults.py")).exists():
     DYNACONF.load_file(apps_settings, run_hooks=False)
 
-# Developers can enable new apps via envvars
+# Developers can enable new apps via envvars and it must load before envvar loading
 if dev_installed_apps := os.getenv("DEV_INSTALLED_APPS", ""):
     if not dev_installed_apps.startswith("@"):
         dev_installed_apps = f"@merge_unique {dev_installed_apps}"
@@ -202,13 +294,15 @@ if apps_dir.exists():
     all_apps = [
         app
         for app in DYNACONF.INSTALLED_APPS
-        if app.startswith("apps.")
-        and Path(apps_dir / app.removeprefix("apps.").replace(".", "/")).exists()
+        if app.startswith("apps.") and Path(apps_dir / app.removeprefix("apps.").replace(".", "/")).exists()
     ]
     for app in all_apps:
         DYNACONF.load_file(f"{app}.settings", run_hooks=False)
     DYNACONF.set("LOADED_APPS", all_apps)
 
+# Load environment specific default overrides after all apps/ settings.
+if (env_settings := Path(apps_settings_dir / f"{environment}.py")).exists():
+    DYNACONF.load_file(env_settings, run_hooks=False)
 
 # load local dev settings if exists
 if (dev_file := Path(BASE_DIR / "settings.local.py")).exists():
@@ -225,10 +319,14 @@ load_envvars(DYNACONF)
 
 # Load development only apps
 if not DYNACONF.get("IS_RUNNING_TESTS") and DYNACONF.get("DEBUG"):
-    DYNACONF.set("INSTALLED_APPS", "@merge_unique django_extensions")
-    DYNACONF.set("INSTALLED_APPS", "@merge_unique debug_toolbar")
-    DYNACONF.set("MIDDLEWARE", "@merge_unique debug_toolbar.middleware.DebugToolbarMiddleware")
-    DYNACONF.set("DEBUG_TOOLBAR_CONFIG", {"SHOW_TOOLBAR_CALLBACK": lambda request: True})
+    try:
+        import debug_toolbar  # noqa
+    except ImportError:
+        pass  # Ignore if debug_toolbar is not installed
+    else:
+        DYNACONF.set("INSTALLED_APPS", "@merge_unique debug_toolbar")
+        DYNACONF.set("MIDDLEWARE", "@merge_unique debug_toolbar.middleware.DebugToolbarMiddleware")
+        DYNACONF.set("DEBUG_TOOLBAR_CONFIG", {"SHOW_TOOLBAR_CALLBACK": lambda request: True})
 
 # This executes the hooks deferred from application settings to execute later.
 # TODO(rochacbruno): Move this internally to DAB as a helper method.
@@ -242,7 +340,13 @@ execute_instance_hooks(
     ],
 )
 
+# Load settings validators from environment-specific file (e.g., production.py, development.py)
+if (env_settings := Path(apps_settings_dir / f"{environment}.py")).exists():
+    env_module = import_module(f"apps.settings.{environment}")
+    if hasattr(env_module, "validators"):
+        DYNACONF.validators.register(*env_module.validators)
+
 # Update django.conf.settings with DYNACONF keys.
-export(__name__, DYNACONF)
+export(__name__, DYNACONF, validation=True)
 
 ## --- End Settings | After this line only post validation can happen --- #

@@ -1,25 +1,22 @@
-"""Top level settings file for all apps.
+"""
+Top level settings file for all apps.
+
 The settings here overrides any setting previously loaded
-from the {{project_name}}.settings
-In order to merge wit previously defined setting
-use Dynaconf merging markers such as:
-@merge, @merge_unique, @insert on string values and
-`dynaconf_merge` or `dynaconf_merge_unique` on data structures.
-The settings defined here can be overridden from
-each app own settings.py, environment local override files and
-environment variables.
+from the `{{ project_name }}.settings`.
 """
 
 extra_applications = []
 """Extra applications added after PSF templating."""
 
 dab_applications = [
-    "ansible_base.rest_filters",
-    "ansible_base.jwt_consumer",
-    "ansible_base.resource_registry",
-    "ansible_base.rbac",
-    "ansible_base.feature_flags",
+    "ansible_base.activitystream",
     "ansible_base.api_documentation",
+    "ansible_base.feature_flags",
+    "ansible_base.jwt_consumer",
+    "ansible_base.rbac",
+    "ansible_base.resource_registry",
+    "ansible_base.rest_filters",
+    "ansible_base.rest_pagination",
 ]
 """Default DAB applications layd out from PSF, add/remove according to the project needs,
 adjust `pyproject` dab extra dependencies acording to apps added/removed here.
@@ -43,9 +40,27 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
     ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "UNAUTHENTICATED_USER": None,
+    "UNAUTHENTICATED_TOKEN": None,
+    "DEFAULT_FILTER_BACKENDS": [
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
+    ],
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "apps.core.renderers.ServiceBrowsableAPIRenderer",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 25,
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.NamespaceVersioning",
+    "DEFAULT_VERSION": "v1",
+    "ALLOWED_VERSIONS": ["v1"],
 }
 """REST framework settings."""
 
@@ -57,3 +72,11 @@ SPECTACULAR_SETTINGS__VERSION = "v1"
 """Version of Swagger the API documentation."""
 SPECTACULAR_SETTINGS__COMPONENT_SPLIT_REQUEST = True
 """Split components into request and response for generating clients."""
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "default",
+    },
+}
+CSRF_TRUSTED_ORIGINS = []
