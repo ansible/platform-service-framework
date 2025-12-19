@@ -50,3 +50,6 @@ htmlcov/
 
 # UV/pip
 uv.lock
+
+# Database
+*.sqlite3
