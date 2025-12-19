@@ -1,0 +1,52 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# IDE generated files
+.idea
+.vscode
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Container files
+.containerignore
+.dockerignore
+Containerfile
+Dockerfile
+
+# CI/CD
+.github/
+
+# Documentation
+*.md
+docs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Local development
+*.local
+.env
+.env.*
+
+# Editor configs
+.editorconfig
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# UV/pip
+uv.lock
