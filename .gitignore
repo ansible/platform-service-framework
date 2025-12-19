@@ -11,3 +11,6 @@ wheels/
 
 # IDE generated files
 .idea
+
+# Database
+*.sqlite3
