@@ -87,9 +87,7 @@ class APIRootView(AnsibleBaseView):
             api_service_prefix = getattr(request, "_api_service_prefix", None)
             if api_service_prefix:
                 # For /api/<service>/... URLs, use the stored API prefix
-                child_url = request.build_absolute_uri(
-                    api_service_prefix + prefix[len("/api") :] + first_segment + "/"
-                )
+                child_url = request.build_absolute_uri(api_service_prefix + prefix[len("/api") :] + first_segment + "/")
             else:
                 # For /<service>/... URLs, SCRIPT_NAME is already set
                 script_name = request.META.get("SCRIPT_NAME", "")

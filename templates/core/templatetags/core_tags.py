@@ -60,6 +60,4 @@ def logout_link(request, user, csrf_token):
             </li>
         </ul>
     </li>"""
-    return format_html(
-        snippet, user=escape(user), href=logout_url, next=escape(full_path), csrf_token=csrf_token
-    )
+    return format_html(snippet, user=escape(user), href=logout_url, next=escape(full_path), csrf_token=csrf_token)
