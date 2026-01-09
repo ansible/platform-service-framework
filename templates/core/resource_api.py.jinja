@@ -1,12 +1,13 @@
 """Resource Registry configuration for DAB."""
 
+from ansible_base.feature_flags.models import AAPFlag
 from ansible_base.resource_registry.registry import (
     ParentResource,
     ResourceConfig,
     ServiceAPIConfig,
     SharedResource,
 )
-from ansible_base.resource_registry.shared_types import UserType
+from ansible_base.resource_registry.shared_types import FeatureFlagType, UserType
 
 from apps.core.models import Organization, Team, User
 
@@ -42,5 +43,9 @@ RESOURCE_LIST = [
             is_provider=False,
         ),
         name_field="username",
+    ),
+    ResourceConfig(
+        AAPFlag,
+        shared_resource=SharedResource(serializer=FeatureFlagType, is_provider=False),
     ),
 ]
