@@ -427,13 +427,11 @@ def validate(
         print("Error: .copier-answers.yml is missing the '_commit' key. Cannot validate project.")
         return False
 
-    # Run test copier "recopy" to retrieve possible conflicts
-    src_path, _ = get_repo()
+    # Pretend recopy: template URL is taken from .copier-answers.yml (not install src).
     f = io.StringIO()
     with redirect_stderr(f):
         run_recopy(
-            src_path=src_path,
-            dst_path=destination,
+            destination,
             skip_answered=True,
             overwrite=True,
             vcs_ref=copier_answers.get("_commit"),
