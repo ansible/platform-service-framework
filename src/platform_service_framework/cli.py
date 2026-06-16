@@ -385,25 +385,22 @@ This commit applies updates from templates/core.
 
 
 def _parse_compliant_files(output: list[str]) -> set[str]:
-    """Extract files marked as 'overwrite' or 'identical' from copier output.
+    """Extract files marked as 'identical' from copier output.
 
-    These files are compliant - copier would regenerate them with the same content.
+    These files are compliant - they match the template exactly.
+    Note: 'overwrite' means copier WOULD update the file, which indicates
+    a modification, so we don't treat those as compliant.
     """
-    overwritten_files = set()
     identical_files = set()
 
     for line in output:
-        parts = line.split()
-        if len(parts) < 2:
-            continue
-        filename = parts[-1]
+        if "identical" in line:
+            parts = line.split()
+            if len(parts) >= 2:
+                filename = parts[-1]
+                identical_files.add(filename)
 
-        if "overwrite" in line:
-            overwritten_files.add(filename)
-        elif "identical" in line:
-            identical_files.add(filename)
-
-    return overwritten_files | identical_files
+    return identical_files
 
 
 def _find_conflicts(output: list[str], compliant_files: set[str]) -> list[str]:
