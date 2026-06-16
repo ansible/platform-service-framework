@@ -384,6 +384,41 @@ This commit applies updates from templates/core.
         sys.exit(1)
 
 
+def _parse_compliant_files(output: list[str]) -> set[str]:
+    """Extract files marked as 'overwrite' or 'identical' from copier output.
+
+    These files are compliant - copier would regenerate them with the same content.
+    """
+    overwritten_files = set()
+    identical_files = set()
+
+    for line in output:
+        parts = line.split()
+        if len(parts) < 2:
+            continue
+        filename = parts[-1]
+
+        if "overwrite" in line:
+            overwritten_files.add(filename)
+        elif "identical" in line:
+            identical_files.add(filename)
+
+    return overwritten_files | identical_files
+
+
+def _find_conflicts(output: list[str], compliant_files: set[str]) -> list[str]:
+    """Find conflict/create lines excluding compliant files."""
+    conflicts = []
+    for line in output:
+        if "conflict" in line or "create" in line:
+            parts = line.split()
+            if len(parts) >= 2:
+                filename = parts[-1]
+                if filename not in compliant_files:
+                    conflicts.append(line)
+    return conflicts
+
+
 @app.command
 def validate(
     destination: Path | None = None,
@@ -455,33 +490,9 @@ def validate(
         print(f"Error: Failed to parse {config_path}: {e}")
         return False
 
-    # Retrieve conflicts and compare them to the list of protected files
-    overwritten_files = set()
-    identical_files = set()
-
-    for line in output:
-        parts = line.split()
-        if len(parts) < 2:
-            continue
-        filename = parts[-1]
-
-        if "overwrite" in line:
-            overwritten_files.add(filename)
-        elif "identical" in line:
-            identical_files.add(filename)
-
-    compliant_files = overwritten_files | identical_files
-
-    # Find lines showing conflicts or creates, excluding compliant files
-    conflicts = []
-    for line in output:
-        if "conflict" in line or "create" in line:
-            parts = line.split()
-            if len(parts) >= 2:
-                filename = parts[-1]
-                # Only count as infraction if file is not in the compliant set
-                if filename not in compliant_files:
-                    conflicts.append(line)
+    # Parse copier output to identify compliant files and conflicts
+    compliant_files = _parse_compliant_files(output)
+    conflicts = _find_conflicts(output, compliant_files)
 
     infractions = list(
         {conflict for conflict in conflicts for file in protected_files if file in conflict}
