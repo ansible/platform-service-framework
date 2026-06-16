@@ -456,7 +456,33 @@ def validate(
         return False
 
     # Retrieve conflicts and compare them to the list of protected files
-    conflicts = [line for line in output if "conflict" in line or "create" in line]
+    overwritten_files = set()
+    identical_files = set()
+
+    for line in output:
+        parts = line.split()
+        if len(parts) < 2:
+            continue
+        filename = parts[-1]
+
+        if "overwrite" in line:
+            overwritten_files.add(filename)
+        elif "identical" in line:
+            identical_files.add(filename)
+
+    compliant_files = overwritten_files | identical_files
+
+    # Find lines showing conflicts or creates, excluding compliant files
+    conflicts = []
+    for line in output:
+        if "conflict" in line or "create" in line:
+            parts = line.split()
+            if len(parts) >= 2:
+                filename = parts[-1]
+                # Only count as infraction if file is not in the compliant set
+                if filename not in compliant_files:
+                    conflicts.append(line)
+
     infractions = list(
         {conflict for conflict in conflicts for file in protected_files if file in conflict}
     )
