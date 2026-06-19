@@ -17,13 +17,15 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@681c641aba71e4a1c380be3ab5e12ad51f415867 # v7
       - name: Validate framework
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH="${{ github.event.pull_request.base.ref || github.ref_name }}"
-          # Framework always lives in ansible/platform-service-framework regardless of which org
-          # is consuming it. Fall back to devel if the branch doesn't exist in the framework repo.
-          if git ls-remote --exit-code https://github.com/ansible/platform-service-framework.git "refs/heads/${BRANCH}" > /dev/null 2>&1; then
+          ORG="${{ github.event.pull_request.base.repo.owner.login || github.repository_owner }}"
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
+          if git ls-remote --exit-code "https://github.com/${ORG}/platform-service-framework.git" "refs/heads/${BRANCH}" > /dev/null 2>&1; then
             REF="${BRANCH}"
           else
             REF="devel"
           fi
-          uvx --refresh git+https://github.com/ansible/platform-service-framework@${REF} validate
+          uvx --refresh "git+https://github.com/${ORG}/platform-service-framework@${REF}" validate
