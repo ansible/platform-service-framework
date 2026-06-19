@@ -22,10 +22,10 @@ jobs:
         run: |
           BRANCH="${{ github.event.pull_request.base.ref || github.ref_name }}"
           ORG="${{ github.event.pull_request.base.repo.owner.login || github.repository_owner }}"
-          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
-          if git ls-remote --exit-code "https://github.com/${ORG}/platform-service-framework.git" "refs/heads/${BRANCH}" > /dev/null 2>&1; then
+          BASE_URL="https://x-access-token:${GH_TOKEN}@github.com/${ORG}/platform-service-framework"
+          if git ls-remote --exit-code "${BASE_URL}.git" "refs/heads/${BRANCH}" > /dev/null 2>&1; then
             REF="${BRANCH}"
           else
             REF="devel"
           fi
-          uvx --refresh "git+https://github.com/${ORG}/platform-service-framework@${REF}" validate
+          uvx --refresh "git+${BASE_URL}@${REF}" validate
