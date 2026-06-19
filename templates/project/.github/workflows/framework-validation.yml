@@ -28,4 +28,6 @@ jobs:
           else
             REF="devel"
           fi
-          uvx --refresh "git+${BASE_URL}@${REF}" validate
+          FRAMEWORK_DIR=$(mktemp -d)
+          git clone --depth 1 --branch "${REF}" "${BASE_URL}.git" "${FRAMEWORK_DIR}"
+          uvx --from "${FRAMEWORK_DIR}" platform-service-framework validate
