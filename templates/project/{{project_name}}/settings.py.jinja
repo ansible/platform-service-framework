@@ -337,7 +337,7 @@ execute_instance_hooks(
     "post",
     [
         _hook
-        for _hook in DYNACONF._post_hooks
+        for _hook in getattr(DYNACONF, "_post_hooks", [])
         if getattr(_hook, "_dynaconf_hook", False) is True and not getattr(_hook, "_called", False)
     ],
 )
