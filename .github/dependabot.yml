@@ -1,0 +1,11 @@
+---
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /templates/project
+    schedule:
+      interval: weekly
+    groups:
+      setup-uv:
+        patterns:
+          - "astral-sh/setup-uv"
