@@ -1,6 +1,9 @@
 import io
 import os
+import re
+import shutil
 import sys
+import tempfile
 from contextlib import redirect_stderr
 from importlib.metadata import distribution
 from pathlib import Path
@@ -384,6 +387,35 @@ This commit applies updates from templates/core.
         sys.exit(1)
 
 
+_ACTION_PIN_RE = re.compile(r"(uses:\s+\S+)@\S+", re.MULTILINE)
+
+
+def _normalize_action_pins(content: str) -> str:
+    return _ACTION_PIN_RE.sub(r"\1", content)
+
+
+def _is_only_action_pin_change(destination: Path, file_path: str, copier_answers: dict) -> bool:
+    """Return True if a conflicting workflow file only differs in GitHub Action version pins."""
+    if ".github/workflows" not in file_path or not file_path.endswith(".yml"):
+        return False
+    current_content = (destination / file_path).read_text()
+    try:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_dest = Path(tmp_dir) / "dest"
+            shutil.copytree(str(destination), str(tmp_dest))
+            with redirect_stderr(io.StringIO()):
+                run_recopy(
+                    tmp_dest,
+                    skip_answered=True,
+                    overwrite=True,
+                    vcs_ref=copier_answers.get("_commit"),
+                )
+            rendered_content = (tmp_dest / file_path).read_text()
+    except Exception:
+        return False
+    return _normalize_action_pins(current_content) == _normalize_action_pins(rendered_content)
+
+
 @app.command
 def validate(
     destination: Path | None = None,
@@ -460,14 +492,25 @@ def validate(
     infractions = list(
         {conflict for conflict in conflicts for file in protected_files if file in conflict}
     )
-    if infractions:
+
+    # Filter out infractions where the only difference is GitHub Action version pins
+    real_infractions = [
+        infraction
+        for infraction in infractions
+        if not _is_only_action_pin_change(
+            destination,
+            next((f for f in protected_files if f in infraction), ""),
+            copier_answers,
+        )
+    ]
+
+    if real_infractions:
         print("✗ The following files should not be modified or deleted: ✗")
-        print("\n".join(f"{i}" for i in infractions))
+        print("\n".join(f"{i}" for i in real_infractions))
         print("✗ Please undo these changes and run the command again ✗")
         return False
-    else:
-        print("✓ No framework infractions found, your project is ready to be updated! ✓")
-        return True
+    print("✓ No framework infractions found, your project is ready to be updated! ✓")
+    return True
 
 
 @app.command
