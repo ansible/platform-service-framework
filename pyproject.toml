@@ -8,9 +8,9 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "copier>=9.10.3",
+    "copier>=9.18.2",
     "cyclopts>=4.2.2",
-    "gitpython>=3.1.45",
+    "gitpython>=3.1.62",
     "pyyaml>=6.0.2",
 ]
 
@@ -25,7 +25,7 @@ build-backend = "uv_build"
 dev = [
     "pdoc>=16.0.0",
     "poethepoet>=0.37.0",
-    "pytest>=9.0.0",
+    "pytest>=9.1.1",
     "pytest-xdist>=3.6.1",
     "ruff>=0.14.4",
     "ty>=0.0.1a26",

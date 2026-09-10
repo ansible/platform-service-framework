@@ -1,8 +1,12 @@
+import logging
+
 from ansible_base.lib.utils.views.ansible_base import AnsibleBaseView
 from django.db import connection
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+
+logger = logging.getLogger(__name__)
 
 
 class HealthView(AnsibleBaseView):
@@ -22,12 +26,15 @@ class HealthView(AnsibleBaseView):
         try:
             connection.ensure_connection()
             health_status["checks"]["database"] = "ok"
-        except Exception as e:
+        except Exception:
+            logger.exception("Health check database connection failed")
             health_status["status"] = "unhealthy"
-            health_status["checks"]["database"] = f"error: {str(e)}"
+            health_status["checks"]["database"] = "error"
 
         http_status = (
-            status.HTTP_200_OK if health_status["status"] == "healthy" else status.HTTP_503_SERVICE_UNAVAILABLE
+            status.HTTP_200_OK
+            if health_status["status"] == "healthy"
+            else status.HTTP_503_SERVICE_UNAVAILABLE
         )
 
         return Response(health_status, status=http_status)

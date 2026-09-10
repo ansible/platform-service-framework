@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -24,3 +26,14 @@ class TestHealthEndpoint(TestCase):
         self.assertEqual(data["status"], "healthy")
         self.assertIn("database", data["checks"])
         self.assertEqual(data["checks"]["database"], "ok")
+
+    @patch(
+        "apps.core.views.health.connection.ensure_connection",
+        side_effect=RuntimeError("secret"),
+    )
+    def test_health_does_not_expose_database_error(self, ensure_connection):
+        response = self.client.get("/health/")
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.json(), {"status": "unhealthy", "checks": {"database": "error"}})
+        ensure_connection.assert_called_once_with()

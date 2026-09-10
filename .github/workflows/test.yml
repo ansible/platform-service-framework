@@ -3,6 +3,9 @@ name: Tests
 on:
   push:
     branches: [devel]
+
+permissions:
+  contents: read
   pull_request:
     branches: [devel]
 
