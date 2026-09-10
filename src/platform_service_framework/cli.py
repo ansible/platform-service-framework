@@ -416,7 +416,9 @@ def _is_only_action_pin_change(destination: Path, file_path: str, copier_answers
     except (OSError, RuntimeError):
         return False
 
-    return _normalize_action_pins(current_content) == _normalize_action_pins(rendered_content)
+    current_normalized = _normalize_action_pins(current_content).rstrip()
+    rendered_normalized = _normalize_action_pins(rendered_content).rstrip()
+    return current_normalized == rendered_normalized
 
 
 @app.command

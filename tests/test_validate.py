@@ -119,7 +119,7 @@ def test_validate_allows_action_sha_updates(isolated_env, capsys):
     workflow = tmp_path / ".github" / "workflows" / "framework-validation.yml"
     content = workflow.read_text()
     replacement = r"\1@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    workflow.write_text(re.sub(r"(uses:\s+\S+)@\S+", replacement, content))
+    workflow.write_text(re.sub(r"(uses:\s+\S+)@\S+", replacement, content).rstrip("\n"))
 
     with pytest.raises(SystemExit) as exc_info:
         app(["validate"])
