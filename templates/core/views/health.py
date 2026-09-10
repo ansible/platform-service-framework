@@ -32,9 +32,7 @@ class HealthView(AnsibleBaseView):
             health_status["checks"]["database"] = "error"
 
         http_status = (
-            status.HTTP_200_OK
-            if health_status["status"] == "healthy"
-            else status.HTTP_503_SERVICE_UNAVAILABLE
+            status.HTTP_200_OK if health_status["status"] == "healthy" else status.HTTP_503_SERVICE_UNAVAILABLE
         )
 
         return Response(health_status, status=http_status)
