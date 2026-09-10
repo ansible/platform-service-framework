@@ -1,5 +1,6 @@
 """Tests for the validate command."""
 
+import re
 from pathlib import Path
 
 import pytest
@@ -105,6 +106,25 @@ def test_validate_allowed_file_modification(isolated_env, capsys):
     assert "Validating your app" in captured.out
     assert "No framework infractions found, your project is ready to be updated!" in captured.out
 
+
+def test_validate_allows_action_sha_updates(isolated_env, capsys):
+    """Dependabot action SHA updates must not block framework validation."""
+    tmp_path, _ = isolated_env
+
+    with pytest.raises(SystemExit) as exc_info:
+        app(["init"])
+    assert exc_info.value.code == 0
+    capsys.readouterr()
+
+    workflow = tmp_path / ".github" / "workflows" / "framework-validation.yml"
+    content = workflow.read_text()
+    replacement = r"\1@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    workflow.write_text(re.sub(r"(uses:\s+\S+)@\S+", replacement, content))
+
+    with pytest.raises(SystemExit) as exc_info:
+        app(["validate"])
+    assert exc_info.value.code == 0
+
 def test_validate_protected_file_deletion(isolated_env, capsys):
     """Test validate on an initialized project."""
     tmp_path, _ = isolated_env
@@ -135,4 +155,3 @@ def test_validate_protected_file_deletion(isolated_env, capsys):
     assert "manage.py" in captured.out
     assert f"{tmp_path.name}/settings.py" in captured.out
     assert "Please undo these changes and run the command again" in captured.out
-
