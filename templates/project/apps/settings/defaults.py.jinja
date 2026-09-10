@@ -17,6 +17,9 @@ dab_applications = [
     "ansible_base.resource_registry",
     "ansible_base.rest_filters",
     "ansible_base.rest_pagination",
+{%- if observability %}
+    "ansible_base.observability",
+{%- endif %}
 ]
 """Default DAB applications layd out from PSF, add/remove according to the project needs,
 adjust `pyproject` dab extra dependencies acording to apps added/removed here.
@@ -49,15 +52,18 @@ REST_FRAMEWORK = {
     "UNAUTHENTICATED_USER": None,
     "UNAUTHENTICATED_TOKEN": None,
     "DEFAULT_FILTER_BACKENDS": [
+        "ansible_base.rest_filters.rest_framework.type_filter_backend.TypeFilterBackend",
+        "ansible_base.rest_filters.rest_framework.field_lookup_backend.FieldLookupBackend",
         "rest_framework.filters.SearchFilter",
-        "rest_framework.filters.OrderingFilter",
+        "ansible_base.rest_filters.rest_framework.order_backend.OrderByBackend",
     ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         "apps.core.renderers.ServiceBrowsableAPIRenderer",
     ],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 25,
+    "DEFAULT_PAGINATION_CLASS": "ansible_base.rest_pagination.DefaultPaginator",
+    "DEFAULT_PAGE_SIZE": 25,
+    "MAX_PAGE_SIZE": 200,
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.NamespaceVersioning",
     "DEFAULT_VERSION": "v1",
     "ALLOWED_VERSIONS": ["v1"],

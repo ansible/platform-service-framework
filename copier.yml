@@ -20,3 +20,7 @@ app_name:
 apps:
   default:
     - api
+
+observability:
+  type: bool
+  default: false

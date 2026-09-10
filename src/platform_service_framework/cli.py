@@ -1,6 +1,9 @@
 import io
 import os
+import re
+import shutil
 import sys
+import tempfile
 from contextlib import redirect_stderr
 from importlib.metadata import distribution
 from pathlib import Path
@@ -25,6 +28,7 @@ def init(
     destination: Path | None = None,
     project: Annotated[str | None, Parameter(alias="-p")] = None,
     apps: Annotated[list[str], Parameter(consume_multiple=True)] = ["api"],
+    observability: bool = False,
 ):
     """Initialize a new Django Project.
 
@@ -45,6 +49,7 @@ def init(
         destination: The root of the repository
         project: project name [default to destination folder name]
         apps: names for each app to be initialized
+        observability: Enable DAB OpenTelemetry instrumentation
     """
     destination = destination or Path.cwd()
     project = project or destination.name.replace("-", "_")
@@ -70,6 +75,7 @@ def init(
             "src_branch": vcs_ref,
             "apps": all_apps,
             "app_name": "",
+            "observability": observability,
         },
     )
     print("Main project created.")
@@ -87,6 +93,7 @@ def init(
             "template": "templates/core",
             "src_branch": vcs_ref,
             "apps": all_apps,
+            "observability": observability,
         },
     )
     print("Created core app")
@@ -103,6 +110,7 @@ def init(
                 "template": "templates/app",
                 "src_branch": vcs_ref,
                 "apps": all_apps,
+                "observability": observability,
             },
         )
         print(f"Created app {app_name}")
@@ -384,6 +392,38 @@ This commit applies updates from templates/core.
         sys.exit(1)
 
 
+_ACTION_PIN_RE = re.compile(r"(uses:\s+\S+)@\S+", re.MULTILINE)
+
+
+def _normalize_action_pins(content: str) -> str:
+    """Remove GitHub Action revisions when comparing managed workflows."""
+    return _ACTION_PIN_RE.sub(r"\1", content)
+
+
+def _is_only_action_pin_change(destination: Path, file_path: str, copier_answers: dict) -> bool:
+    """Return whether a workflow differs from the template only by action pins."""
+    if ".github/workflows" not in file_path or not file_path.endswith(".yml"):
+        return False
+
+    current_content = (destination / file_path).read_text()
+    try:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_dest = Path(tmp_dir) / "dest"
+            shutil.copytree(destination, tmp_dest)
+            with redirect_stderr(io.StringIO()):
+                run_recopy(
+                    tmp_dest,
+                    skip_answered=True,
+                    overwrite=True,
+                    vcs_ref=copier_answers.get("_commit"),
+                )
+            rendered_content = (tmp_dest / file_path).read_text()
+    except (OSError, RuntimeError):
+        return False
+
+    return _normalize_action_pins(current_content) == _normalize_action_pins(rendered_content)
+
+
 @app.command
 def validate(
     destination: Path | None = None,
@@ -460,14 +500,23 @@ def validate(
     infractions = list(
         {conflict for conflict in conflicts for file in protected_files if file in conflict}
     )
-    if infractions:
+    real_infractions = [
+        infraction
+        for infraction in infractions
+        if not _is_only_action_pin_change(
+            destination,
+            next((file for file in protected_files if file in infraction), ""),
+            copier_answers,
+        )
+    ]
+    if real_infractions:
         print("✗ The following files should not be modified or deleted: ✗")
-        print("\n".join(f"{i}" for i in infractions))
+        print("\n".join(f"{i}" for i in real_infractions))
         print("✗ Please undo these changes and run the command again ✗")
         return False
-    else:
-        print("✓ No framework infractions found, your project is ready to be updated! ✓")
-        return True
+
+    print("✓ No framework infractions found, your project is ready to be updated! ✓")
+    return True
 
 
 @app.command
