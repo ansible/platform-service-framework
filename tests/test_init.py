@@ -1,6 +1,6 @@
 """Tests for the init command."""
+
 import subprocess
-from pathlib import Path
 
 import pytest
 from git import Repo
@@ -34,6 +34,23 @@ def test_init_default(isolated_env, capsys):
     assert "Main project created" in captured.out
     assert "Created app api" in captured.out
     assert "Framework init finished" in captured.out
+
+
+def test_init_with_observability(isolated_env):
+    """Test that the optional DAB observability profile is rendered."""
+    tmp_path, _ = isolated_env
+
+    with pytest.raises(SystemExit) as exc_info:
+        app(["init", "--observability"])
+
+    assert exc_info.value.code == 0
+    pyproject = (tmp_path / "pyproject.toml").read_text()
+    settings = (tmp_path / "apps" / "settings" / "defaults.py").read_text()
+    assert (
+        "django-ansible-base[rest_filters,jwt_consumer,resource_registry,rbac,feature_flags,"
+        "api_documentation,observability]"
+    ) in pyproject
+    assert '"ansible_base.observability"' in settings
 
 
 def test_init_with_destination(isolated_dir, local_repo_url):
@@ -163,6 +180,7 @@ def test_init_without_apps(isolated_env):
         # The apps directory might still be created by the template
         assert (tmp_path / "apps").exists()
 
+
 def test_init_run_all_project_checks(isolated_env, capsys):
     """Test init command with default parameters and run all unit tests and linters."""
     tmp_path, _ = isolated_env
@@ -186,7 +204,7 @@ def test_init_run_all_project_checks(isolated_env, capsys):
         capture_output=True,
         text=True,
     )
-    assert lint_exec.returncode == 0 and 'All checks passed!' in lint_exec.stdout, (
+    assert lint_exec.returncode == 0 and "All checks passed!" in lint_exec.stdout, (
         f"poe lint failed with exit code {lint_exec.returncode}\n"
         f"stdout: {lint_exec.stdout}\n"
         f"stderr: {lint_exec.stderr}"
@@ -199,7 +217,7 @@ def test_init_run_all_project_checks(isolated_env, capsys):
         capture_output=True,
         text=True,
     )
-    assert format_exec.returncode == 0 and 'reformatted' not in format_exec.stdout, (
+    assert format_exec.returncode == 0 and "reformatted" not in format_exec.stdout, (
         f"poe format failed with exit code {format_exec.returncode}\n"
         f"stdout: {format_exec.stdout}\n"
         f"stderr: {format_exec.stderr}"
@@ -241,4 +259,3 @@ def test_init_run_all_project_checks(isolated_env, capsys):
         f"stdout: {test_exec.stdout}\n"
         f"stderr: {test_exec.stderr}"
     )
-

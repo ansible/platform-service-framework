@@ -21,7 +21,10 @@ def test_validate_empty_project(isolated_env, capsys):
     # Check output - git check happens first, so expect git error
     captured = capsys.readouterr()
     assert "Validating your app" in captured.out
-    assert "Platform service framework is only supported in git-tracked repositories" in captured.out
+    assert (
+        "Platform service framework is only supported in git-tracked repositories" in captured.out
+    )
+
 
 def test_validate_on_initialized_project(isolated_env, capsys):
     """Test validate on an initialized project."""
@@ -57,11 +60,8 @@ def test_validate_protected_file_modification(isolated_env, capsys):
 
     # Clear the captured output
     capsys.readouterr()
-    # Modify manage.py and project_name/settings.py, configured as protected under src/config/protected_files.yaml
-    files_to_modify = [
-        tmp_path / "manage.py",
-        tmp_path / tmp_path.name / "settings.py"
-    ]
+    # Modify protected files from the generated project.
+    files_to_modify = [tmp_path / "manage.py", tmp_path / tmp_path.name / "settings.py"]
     for file in files_to_modify:
         file.write_text("test")
     # Run validate - expect SystemExit(1)
@@ -90,10 +90,7 @@ def test_validate_allowed_file_modification(isolated_env, capsys):
     # Clear the captured output
     capsys.readouterr()
     # Modify .github/dependabot.yml and README.md, shouldn't trigger any infractions
-    files_to_modify = [
-        tmp_path / ".github" / "dependabot.yml",
-        tmp_path / "README.md"
-    ]
+    files_to_modify = [tmp_path / ".github" / "dependabot.yml", tmp_path / "README.md"]
     for file in files_to_modify:
         file.write_text("test")
     # Run validate - expect SystemExit(0)
@@ -136,11 +133,8 @@ def test_validate_protected_file_deletion(isolated_env, capsys):
 
     # Clear the captured output
     capsys.readouterr()
-    # Modify manage.py and project_name/settings.py, configured as protected under src/config/protected_files.yaml
-    files_to_delete = [
-        tmp_path / "manage.py",
-        tmp_path / tmp_path.name / "settings.py"
-    ]
+    # Delete protected files from the generated project.
+    files_to_delete = [tmp_path / "manage.py", tmp_path / tmp_path.name / "settings.py"]
     for file in files_to_delete:
         file.unlink()
     # Run validate - expect SystemExit(1)
