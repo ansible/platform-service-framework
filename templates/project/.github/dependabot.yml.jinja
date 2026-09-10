@@ -1,6 +1,25 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "monthly"
+      interval: 'monthly'
+    groups:
+      monthly-batch:
+        patterns:
+          - '*'
+
+  - package-ecosystem: 'uv'
+    directory: '/'
+    schedule:
+      interval: 'monthly'
+    groups:
+      monthly-batch:
+        patterns:
+          - '*'
+    # Never propose major version bumps for Python dependencies. Major upgrades
+    # are deliberate, human-driven changes.
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - 'version-update:semver-major'
