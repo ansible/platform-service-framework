@@ -15,7 +15,7 @@ from apps.core.models import Organization, Team, User
 class APIConfig(ServiceAPIConfig):
     """API configuration for the resource registry."""
 
-    service_type = "{{ project_name }}"
+    service_type = "{{ service_type }}"
 
 
 RESOURCE_LIST = [

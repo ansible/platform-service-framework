@@ -14,6 +14,10 @@ class HealthView(AnsibleBaseView):
     Health check endpoint to verify service health.
 
     Checks database connectivity and returns overall health status.
+
+    Extensions that add service-specific checks must return sanitized status
+    values. Health responses are public and must not expose exception details,
+    connection strings, or other internal implementation data.
     """
 
     permission_classes = [AllowAny]

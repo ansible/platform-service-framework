@@ -12,6 +12,11 @@ to follow the defined standards.
 - Consolidates meta files such as pyproject, sonar, pre-commit, github actions, settings based on template standards + apps customizations.
 - Validate the whole project structure.
 
+Health endpoints should expose only coarse-grained check results such as
+`ok` or `error`. Services that add custom health checks must log exception
+details server-side and sanitize the response; health endpoints are public and
+must not return database, connection, or other internal error details.
+
 
 ## Requirements
 

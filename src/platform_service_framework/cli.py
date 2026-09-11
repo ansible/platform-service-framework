@@ -28,6 +28,7 @@ def init(
     destination: Path | None = None,
     project: Annotated[str | None, Parameter(alias="-p")] = None,
     apps: Annotated[list[str], Parameter(consume_multiple=True)] = ["api"],
+    service_type: str | None = None,
 ):
     """Initialize a new Django Project.
 
@@ -48,9 +49,11 @@ def init(
         destination: The root of the repository
         project: project name [default to destination folder name]
         apps: names for each app to be initialized
+        service_type: resource registry service type [default to project name]
     """
     destination = destination or Path.cwd()
     project = project or destination.name.replace("-", "_")
+    service_type = service_type or project
     if not destination.exists():
         destination.mkdir(parents=True, exist_ok=True)
     if not Path(destination / ".git").exists():
@@ -73,6 +76,7 @@ def init(
             "src_branch": vcs_ref,
             "apps": all_apps,
             "app_name": "",
+            "service_type": service_type,
         },
     )
     print("Main project created.")
@@ -90,6 +94,7 @@ def init(
             "template": "templates/core",
             "src_branch": vcs_ref,
             "apps": all_apps,
+            "service_type": service_type,
         },
     )
     print("Created core app")

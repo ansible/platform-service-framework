@@ -1,5 +1,6 @@
 """Tests for the update command."""
 
+from pathlib import Path
 from unittest.mock import ANY, patch
 
 import pytest
@@ -70,6 +71,34 @@ def test_update_with_specific_destination(isolated_dir, local_repo_url, capsys):
     assert str(destination) in captured.out
 
 
+def test_update_with_core_updates_core_template(isolated_env):
+    """Test that --core invokes the separate core template update."""
+    tmp_path, _ = isolated_env
+    repo = Repo.init(tmp_path)
+    (tmp_path / ".copier-answers.yml").write_text(
+        "_commit: test\n_src_path: /tmp/template\nsrc_branch: devel\n"
+    )
+    repo.index.add([".copier-answers.yml"])
+    repo.index.commit("Initialize test project")
+
+    with (
+        patch(
+            "platform_service_framework.cli.get_repo",
+            return_value=(str(Path(__file__).parent.parent), None),
+        ),
+        patch("platform_service_framework.cli.validate", return_value=True),
+    ):
+        with (
+            patch("platform_service_framework.cli.run_update"),
+            patch("platform_service_framework.cli._update_core_app") as update_core,
+        ):
+            with pytest.raises(SystemExit) as exc_info:
+                app(["update", "--core"])
+
+    assert exc_info.value.code == 0
+    update_core.assert_called_once_with(tmp_path, ANY, ANY)
+
+
 def test_update_non_git_repository(isolated_env, capsys):
     """Test that update command triggers an error in case it is executed in a non-git repository."""
     tmp_path, _ = isolated_env
@@ -87,7 +116,9 @@ def test_update_non_git_repository(isolated_env, capsys):
     # Check output (now comes from validate command)
     captured = capsys.readouterr()
     assert "Updating your app" in captured.out
-    assert "Platform service framework is only supported in git-tracked repositories" in captured.out
+    assert (
+        "Platform service framework is only supported in git-tracked repositories" in captured.out
+    )
     assert "Validation failed" in captured.out
 
 

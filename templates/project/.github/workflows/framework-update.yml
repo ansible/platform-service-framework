@@ -27,7 +27,7 @@ jobs:
         run: |
           ORG="${{ github.repository_owner }}"
           BRANCH="${{ github.ref_name }}"
-          uvx --refresh git+https://github.com/${ORG}/platform-service-framework@${BRANCH} update
+          uvx --refresh git+https://github.com/${ORG}/platform-service-framework@${BRANCH} update --core
       - name: Check for changes
         id: check_changes
         run: |
