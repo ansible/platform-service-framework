@@ -19,11 +19,11 @@ class TestHealthEndpoint(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def test_health_returns_healthy(self):
+    def test_health_returns_good(self):
         response = self.client.get("/health/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertEqual(data["status"], "healthy")
+        self.assertEqual(data["status"], "good")
         self.assertIn("database", data["checks"])
         self.assertEqual(data["checks"]["database"], "ok")
 
@@ -35,5 +35,5 @@ class TestHealthEndpoint(TestCase):
         response = self.client.get("/health/")
 
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
-        self.assertEqual(response.json(), {"status": "unhealthy", "checks": {"database": "error"}})
+        self.assertEqual(response.json(), {"status": "degraded", "checks": {"database": "error"}})
         ensure_connection.assert_called_once_with()
