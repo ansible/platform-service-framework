@@ -1,6 +1,8 @@
 """Tests for the init command."""
+
 import subprocess
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from git import Repo
@@ -68,6 +70,26 @@ def test_init_with_custom_project_name(isolated_env, capsys):
     # Check output includes custom project name
     captured = capsys.readouterr()
     assert "custom_project" in captured.out
+
+
+def test_init_with_custom_service_type(isolated_env):
+    """Test that the core resource registry accepts a service type override."""
+    tmp_path, _ = isolated_env
+    (tmp_path / "apps").mkdir()
+
+    with (
+        patch(
+            "platform_service_framework.cli.get_repo",
+            return_value=(str(Path(__file__).parent.parent), None),
+        ),
+        patch("platform_service_framework.cli.run_copy") as run_copy,
+    ):
+        with pytest.raises(SystemExit) as exc_info:
+            app(["init", "-p", "metrics_service", "--service-type", "metrics"])
+
+    assert exc_info.value.code == 0
+    core_copy_data = run_copy.call_args_list[1].kwargs["data"]
+    assert core_copy_data["service_type"] == "metrics"
 
 
 def test_init_with_multiple_apps(isolated_env):
@@ -163,6 +185,7 @@ def test_init_without_apps(isolated_env):
         # The apps directory might still be created by the template
         assert (tmp_path / "apps").exists()
 
+
 def test_init_run_all_project_checks(isolated_env, capsys):
     """Test init command with default parameters and run all unit tests and linters."""
     tmp_path, _ = isolated_env
@@ -186,7 +209,7 @@ def test_init_run_all_project_checks(isolated_env, capsys):
         capture_output=True,
         text=True,
     )
-    assert lint_exec.returncode == 0 and 'All checks passed!' in lint_exec.stdout, (
+    assert lint_exec.returncode == 0 and "All checks passed!" in lint_exec.stdout, (
         f"poe lint failed with exit code {lint_exec.returncode}\n"
         f"stdout: {lint_exec.stdout}\n"
         f"stderr: {lint_exec.stderr}"
@@ -199,7 +222,7 @@ def test_init_run_all_project_checks(isolated_env, capsys):
         capture_output=True,
         text=True,
     )
-    assert format_exec.returncode == 0 and 'reformatted' not in format_exec.stdout, (
+    assert format_exec.returncode == 0 and "reformatted" not in format_exec.stdout, (
         f"poe format failed with exit code {format_exec.returncode}\n"
         f"stdout: {format_exec.stdout}\n"
         f"stderr: {format_exec.stderr}"
@@ -241,4 +264,3 @@ def test_init_run_all_project_checks(isolated_env, capsys):
         f"stdout: {test_exec.stdout}\n"
         f"stderr: {test_exec.stderr}"
     )
-

@@ -17,6 +17,11 @@ app_name:
   type: str
   default: ""
 
+service_type:
+  type: str
+  default: "{{ project_name }}"
+  when: "{{ app_name == 'core' }}"
+
 apps:
   default:
     - api
