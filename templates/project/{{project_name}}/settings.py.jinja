@@ -331,7 +331,6 @@ if not DYNACONF.get("IS_RUNNING_TESTS") and DYNACONF.get("DEBUG"):
         DYNACONF.set("DEBUG_TOOLBAR_CONFIG", {"SHOW_TOOLBAR_CALLBACK": lambda request: True})
 
 # This executes the hooks deferred from application settings to execute later.
-# TODO(rochacbruno): Move this internally to DAB as a helper method.
 execute_instance_hooks(
     DYNACONF,  # type: ignore
     "post",
