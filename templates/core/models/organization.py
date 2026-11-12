@@ -1,8 +1,9 @@
+from ansible_base.activitystream.models import AuditableModel
 from ansible_base.lib.abstract_models.organization import AbstractOrganization
 from django.db import models
 
 
-class Organization(AbstractOrganization):
+class Organization(AuditableModel, AbstractOrganization):
     """
     Organization model using DAB's AbstractOrganization.
 

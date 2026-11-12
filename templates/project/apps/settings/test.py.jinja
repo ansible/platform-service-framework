@@ -70,13 +70,26 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.AllowAny",
     ],
     "DEFAULT_FILTER_BACKENDS": [
+        "ansible_base.rest_filters.rest_framework.type_filter_backend.TypeFilterBackend",
+        "ansible_base.rest_filters.rest_framework.field_lookup_backend.FieldLookupBackend",
         "rest_framework.filters.SearchFilter",
-        "rest_framework.filters.OrderingFilter",
+        "ansible_base.rest_filters.rest_framework.order_backend.OrderByBackend",
     ],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 25,
+    "DEFAULT_PAGINATION_CLASS": "ansible_base.rest_pagination.DefaultPaginator",
+    "DEFAULT_PAGE_SIZE": 25,
+    "MAX_PAGE_SIZE": 200,
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
 }
+
+{%- if observability %}
+LOGGING__loggers = {
+    "dynaconf_merge": True,
+    "opentelemetry.exporter.otlp.proto.grpc.exporter": {
+        "handlers": ["null"],
+        "propagate": False,
+    },
+}
+{%- endif %}
 
 # Test database settings
 TEST_DATABASE_PREFIX = "test_"

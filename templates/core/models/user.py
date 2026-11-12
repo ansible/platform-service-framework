@@ -1,7 +1,8 @@
+from ansible_base.activitystream.models import AuditableModel
 from ansible_base.lib.abstract_models.user import AbstractDABUser
 
 
-class User(AbstractDABUser):
+class User(AuditableModel, AbstractDABUser):
     """
     Custom User model extending DAB's AbstractDABUser.
 

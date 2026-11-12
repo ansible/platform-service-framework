@@ -28,6 +28,7 @@ def init(
     destination: Path | None = None,
     project: Annotated[str | None, Parameter(alias="-p")] = None,
     apps: Annotated[list[str], Parameter(consume_multiple=True)] = ["api"],
+    observability: bool = False,
 ):
     """Initialize a new Django Project.
 
@@ -48,6 +49,7 @@ def init(
         destination: The root of the repository
         project: project name [default to destination folder name]
         apps: names for each app to be initialized
+        observability: Enable DAB OpenTelemetry instrumentation
     """
     destination = destination or Path.cwd()
     project = project or destination.name.replace("-", "_")
@@ -73,6 +75,7 @@ def init(
             "src_branch": vcs_ref,
             "apps": all_apps,
             "app_name": "",
+            "observability": observability,
         },
     )
     print("Main project created.")
@@ -90,6 +93,7 @@ def init(
             "template": "templates/core",
             "src_branch": vcs_ref,
             "apps": all_apps,
+            "observability": observability,
         },
     )
     print("Created core app")
@@ -106,6 +110,7 @@ def init(
                 "template": "templates/app",
                 "src_branch": vcs_ref,
                 "apps": all_apps,
+                "observability": observability,
             },
         )
         print(f"Created app {app_name}")

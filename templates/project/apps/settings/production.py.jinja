@@ -171,3 +171,15 @@ validators.append(
 # Production login/logout URLs for gateway integration
 LOGIN_URL = "/api/gateway/v1/login/"
 LOGOUT_URL = "/api/gateway/v1/logout/"
+
+{%- if observability %}
+# Keep exporter failures visible in production without logging retry noise.
+LOGGING__loggers = {
+    "dynaconf_merge": True,
+    "opentelemetry.exporter.otlp.proto.grpc.exporter": {
+        "handlers": ["console"],
+        "level": "WARNING",
+        "propagate": False,
+    },
+}
+{%- endif %}

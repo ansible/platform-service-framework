@@ -1,1 +1,28 @@
 # {{project_name}}
+
+This service is generated and maintained by the Platform Service Framework.
+
+## Django Ansible Base
+
+The generated service uses Django Ansible Base for gateway integration,
+service JWT authentication, RBAC, resource registration, feature flags,
+REST filtering, bounded pagination, and API documentation.
+
+Organization and Team are registered as shared-resource consumers. The gateway
+remains the source of user authentication and role claims.
+
+The default paginator uses a page size of 25 and caps requests at 200 items.
+
+{%- if observability %}
+## Observability
+
+OpenTelemetry instrumentation is enabled through `ansible_base.observability`.
+Configure `OTEL_SERVICE_NAME` and `OTEL_EXPORTER_OTLP_ENDPOINT` for the
+deployment. Production logs exporter failures at warning level; tests suppress
+expected collector connection errors.
+{%- else %}
+## Optional Observability
+
+Run the framework with `init --observability` to enable DAB OpenTelemetry
+instrumentation and the `django-ansible-base[observability]` dependency.
+{%- endif %}

@@ -1,8 +1,9 @@
+from ansible_base.activitystream.models import AuditableModel
 from ansible_base.lib.abstract_models.team import AbstractTeam
 from django.db import models
 
 
-class Team(AbstractTeam):
+class Team(AuditableModel, AbstractTeam):
     """
     Team model using DAB's AbstractTeam.
 

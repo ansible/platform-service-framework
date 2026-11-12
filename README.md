@@ -30,6 +30,13 @@ Framework init finished
 Created project at my-project/my_project
 Created apps at my-project/apps/[api]
 ```
+
+Enable DAB OpenTelemetry instrumentation when the service is deployed with an
+OTLP collector:
+
+```console
+$ uvx git+https://github.com/ansible/platform-service-framework init my-project --observability
+```
 ```
 my-project
 # Editable by developers
@@ -62,6 +69,9 @@ my-project
 - UV based project
 - Django > 5
 - Django Ansible Base (dynamic)
+- DAB REST filtering and bounded pagination
+- DAB gateway-shared Organization and Team resource registration
+- Optional DAB OpenTelemetry observability (`--observability`)
 - pytest 
 - ruff
 - ty 
