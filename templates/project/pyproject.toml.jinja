@@ -108,9 +108,9 @@ with open('.copier-answers.yml') as f:
 """
 
 [tool.poe.tasks.update]
-help = "Update the project from template (use --core to also update core templates)"
+help = "Update the project and all framework-managed apps"
 args = [
-  { name = "core", help = "Also update core templates", type = "boolean" }
+  { name = "core", help = "Deprecated compatibility flag", type = "boolean" }
 ]
 shell = """
 python -c "
