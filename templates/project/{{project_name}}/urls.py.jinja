@@ -94,20 +94,22 @@ from django.urls import include, path
 
 from apps.core.views import APIRootView
 
+API_V1_PREFIX = "api/v1/"
+
 urlpatterns = []
 
 # Django Ansible Base URLs
 urlpatterns += [
-    path("api/v1/", include(api_version_urls)),
-    path("api/v1/", include(resource_api_urls)),
-    path("api/v1/", include(rbac_service_urls)),
+    path(API_V1_PREFIX, include(api_version_urls)),
+    path(API_V1_PREFIX, include(resource_api_urls)),
+    path(API_V1_PREFIX, include(rbac_service_urls)),
     path("api/", include(api_urls)),
     path("", include(root_urls)),
 ]
 
 # Override empty router views from DAB with dynamic API root
 urlpatterns += [
-    path("api/v1/", APIRootView.as_view(view_name="v1"), name="api-v1-index"),
+    path(API_V1_PREFIX, APIRootView.as_view(view_name="v1"), name="api-v1-index"),
     path("api/", APIRootView.as_view(view_name="api"), name="api-index"),
     path("", APIRootView.as_view(view_name="root"), name="root-index"),
 ]
